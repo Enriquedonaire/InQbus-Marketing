@@ -7,8 +7,8 @@ import Link from "next/link"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import MouseMoveEffect from "@/components/mouse-move-effect"
-import { SparklesCore } from "@/components/sparkles"
 import { useTheme } from "@/components/theme-provider"
+import LayeredParticlesEffect from "@/components/layered-particles-effect"
 
 export default function GetStartedPage() {
   const { theme } = useTheme()
@@ -23,18 +23,15 @@ export default function GetStartedPage() {
       {/* Mouse move effect */}
       <MouseMoveEffect />
 
-      {/* Ambient background with moving particles */}
+      {/* Ambient background with layered particles */}
       <div className="h-full w-full absolute inset-0 z-0">
-        <SparklesCore
-          id="tsparticlesfullpage"
-          background="transparent"
-          minSize={0.6}
-          maxSize={1.4}
-          particleDensity={80}
+        <LayeredParticlesEffect
+          id="layered-particles-getstarted"
           className="w-full h-full"
-          particleColor={isDark ? "#FFFFFF" : "#1E293B"}
-          mouseForce={20}
-          particleSpeed={0.3}
+          primaryEffect="colorful"
+          backgroundEffect={true}
+          starsCount={250}
+          starsColor={isDark ? "#ffffff" : "#1e293b"}
         />
       </div>
 

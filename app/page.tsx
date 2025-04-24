@@ -2,7 +2,6 @@
 
 import Hero from "@/components/hero"
 import Navbar from "@/components/navbar"
-import { SparklesCore } from "@/components/sparkles"
 import Services from "@/components/services"
 import Features from "@/components/features"
 import PricingFixed from "@/components/pricing-fixed" // Use the fixed version
@@ -11,6 +10,7 @@ import MouseMoveEffect from "@/components/mouse-move-effect"
 import ContactForm from "@/components/contact-form"
 import { useTheme } from "@/components/theme-provider"
 import { SimpleErrorBoundary } from "@/components/simple-error-boundary" // Updated import
+import LayeredParticlesEffect from "@/components/layered-particles-effect"
 
 export default function Home() {
   const { theme } = useTheme()
@@ -25,18 +25,17 @@ export default function Home() {
       {/* Mouse move effect */}
       <MouseMoveEffect />
 
-      {/* Ambient background with moving particles */}
+      {/* Ambient background with layered particles */}
       <div className="h-full w-full absolute inset-0 z-0">
-        <SparklesCore
-          id="tsparticlesfullpage"
-          background="transparent"
-          minSize={0.6}
-          maxSize={1.4}
-          particleDensity={80}
+        <LayeredParticlesEffect
+          id="layered-particles-home"
           className="w-full h-full"
-          particleColor={isDark ? "#FFFFFF" : "#1E293B"}
-          mouseForce={20}
-          particleSpeed={0.3}
+          primaryEffect="colorful"
+          backgroundEffect={true}
+          particleColor={isDark ? "#ffffff" : "#1e293b"}
+          linkColor={isDark ? "rgba(255, 255, 255, 0.5)" : "rgba(30, 41, 59, 0.5)"}
+          starsCount={200}
+          starsColor={isDark ? "#ffffff" : "#1e293b"}
         />
       </div>
 

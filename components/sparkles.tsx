@@ -56,34 +56,48 @@ export const SparklesCore = ({
       size: number
       speedX: number
       speedY: number
+      connections: Particle[] = []
 
       constructor() {
         this.x = Math.random() * canvas.width
         this.y = Math.random() * canvas.height
         this.size = Math.random() * (maxSize - minSize) + minSize
-        // Apply speed multiplier to make particles move slower
-        this.speedX = (Math.random() * 0.5 - 0.25) * particleSpeed
-        this.speedY = (Math.random() * 0.5 - 0.25) * particleSpeed
+        // Reducir la velocidad para un movimiento más flotante
+        this.speedX = (Math.random() * 0.2 - 0.1) * particleSpeed
+        this.speedY = (Math.random() * 0.2 - 0.1) * particleSpeed
       }
 
       update() {
         this.x += this.speedX
         this.y += this.speedY
 
-        if (this.x > canvas.width) this.x = 0
-        if (this.x < 0) this.x = canvas.width
-        if (this.y > canvas.height) this.y = 0
-        if (this.y < 0) this.y = canvas.height
+        // Rebote en los bordes con efecto suave
+        if (this.x > canvas.width) {
+          this.x = canvas.width
+          this.speedX *= -0.5
+        }
+        if (this.x < 0) {
+          this.x = 0
+          this.speedX *= -0.5
+        }
+        if (this.y > canvas.height) {
+          this.y = canvas.height
+          this.speedY *= -0.5
+        }
+        if (this.y < 0) {
+          this.y = 0
+          this.speedY *= -0.5
+        }
 
-        // Mouse interaction with reduced force and smoother movement
+        // Mouse interaction con movimiento más suave
         const dx = mousePosition.x - this.x
         const dy = mousePosition.y - this.y
         const distance = Math.sqrt(dx * dx + dy * dy)
+
         if (distance < mouseForce) {
-          // Use mouseForce for interaction radius
           const angle = Math.atan2(dy, dx)
-          // Reduced force factor for smoother interaction
-          const forceFactor = 0.3 * (1 - distance / mouseForce)
+          // Reducir significativamente la fuerza para un movimiento más sutil
+          const forceFactor = 0.05 * (1 - distance / mouseForce)
           this.x -= Math.cos(angle) * forceFactor
           this.y -= Math.sin(angle) * forceFactor
         }
@@ -95,6 +109,44 @@ export const SparklesCore = ({
         ctx.beginPath()
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
         ctx.fill()
+      }
+
+      // Método para encontrar partículas cercanas y dibujar conexiones
+      findConnections(particles: Particle[]) {
+        this.connections = []
+        for (const particle of particles) {
+          if (particle === this) continue
+
+          const dx = this.x - particle.x
+          const dy = this.y - particle.y
+          const distance = Math.sqrt(dx * dx + dy * dy)
+
+          // Conectar partículas que estén a menos de 100px de distancia
+          if (distance < 100) {
+            this.connections.push(particle)
+          }
+        }
+      }
+
+      // Método para dibujar las conexiones
+      drawConnections() {
+        if (!ctx) return
+
+        for (const particle of this.connections) {
+          const dx = this.x - particle.x
+          const dy = this.y - particle.y
+          const distance = Math.sqrt(dx * dx + dy * dy)
+
+          // Hacer que la opacidad dependa de la distancia
+          const opacity = 1 - distance / 100
+
+          ctx.strokeStyle = particleColor.replace(")", `, ${opacity})`)
+          ctx.lineWidth = 0.3
+          ctx.beginPath()
+          ctx.moveTo(this.x, this.y)
+          ctx.lineTo(particle.x, particle.y)
+          ctx.stroke()
+        }
       }
     }
 
@@ -109,8 +161,23 @@ export const SparklesCore = ({
       if (!ctx) return
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
+      // Actualizar posiciones
       particles.forEach((particle) => {
         particle.update()
+      })
+
+      // Encontrar conexiones
+      particles.forEach((particle) => {
+        particle.findConnections(particles)
+      })
+
+      // Dibujar conexiones primero (para que estén detrás de las partículas)
+      particles.forEach((particle) => {
+        particle.drawConnections()
+      })
+
+      // Dibujar partículas
+      particles.forEach((particle) => {
         particle.draw()
       })
 
