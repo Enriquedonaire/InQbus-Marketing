@@ -137,7 +137,7 @@ export default function Navbar() {
             isDark
               ? "bg-black/90 backdrop-blur-md border-b border-white/10"
               : "bg-white/90 backdrop-blur-md border-b border-black/10"
-          } p-6 flex flex-col space-y-4 md:hidden`}
+          } p-6 flex flex-col space-y-4 md:hidden z-50`}
         >
           <NavLink href="#home" active={activeSection === "home"} onClick={() => scrollToSection("home")}>
             Home

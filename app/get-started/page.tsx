@@ -9,6 +9,8 @@ import Footer from "@/components/footer"
 import MouseMoveEffect from "@/components/mouse-move-effect"
 import { useTheme } from "@/components/theme-provider"
 import LayeredParticlesEffect from "@/components/layered-particles-effect"
+// Importar el componente de viñeta
+import VignetteOverlay from "@/components/vignette-overlay"
 
 export default function GetStartedPage() {
   const { theme } = useTheme()
@@ -20,10 +22,7 @@ export default function GetStartedPage() {
         isDark ? "bg-black/[0.96] bg-grid-white/[0.02]" : "bg-gray-50 bg-grid-black/[0.02]"
       } antialiased relative overflow-hidden transition-colors duration-300`}
     >
-      {/* Mouse move effect */}
-      <MouseMoveEffect />
-
-      {/* Ambient background with layered particles */}
+      {/* Ambient background with layered particles - z-index más bajo (0) */}
       <div className="h-full w-full absolute inset-0 z-0">
         <LayeredParticlesEffect
           id="layered-particles-getstarted"
@@ -35,7 +34,17 @@ export default function GetStartedPage() {
         />
       </div>
 
-      <div className="relative z-10">
+      {/* Mouse move effect - z-index bajo (3) */}
+      <div className="z-3 relative">
+        <MouseMoveEffect />
+      </div>
+
+      {/* Viñeta - z-index medio-bajo (5) */}
+      <VignetteOverlay intensity={90} position="top-left" size={80} />
+
+      {/* Contenido principal - z-index alto (20) para estar por encima de la viñeta */}
+      <div className="relative z-20">
+        {/* Navbar - z-index más alto (50) */}
         <Navbar />
 
         <section className="py-20 px-6">

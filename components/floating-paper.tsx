@@ -63,7 +63,7 @@ export function FloatingPaper({ count = 15 }) {
   }
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full z-5">
       {isClient &&
         Array.from({ length: count }).map((_, i) => {
           const { x: initialX, y: initialY } = getPosition(i)

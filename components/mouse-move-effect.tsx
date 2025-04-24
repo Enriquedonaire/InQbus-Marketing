@@ -22,11 +22,12 @@ export default function MouseMoveEffect() {
 
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
+      className="pointer-events-none fixed inset-0 transition-opacity duration-300"
       style={{
         background: isDark
           ? `radial-gradient(600px at ${mousePosition.x}px ${mousePosition.y}px, rgba(29, 78, 216, 0.15), transparent 80%)`
           : `radial-gradient(600px at ${mousePosition.x}px ${mousePosition.y}px, rgba(29, 78, 216, 0.1), transparent 80%)`,
+        zIndex: 3, // Asignar un z-index bajo pero por encima de las partículas
       }}
     />
   )

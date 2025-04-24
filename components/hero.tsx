@@ -11,6 +11,16 @@ export default function Hero() {
   const { theme } = useTheme()
   const isDark = theme === "dark"
 
+  // Función para desplazarse a una sección
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId)
+    if (element) {
+      const navbarHeight = 76 // Altura aproximada de la navbar
+      const y = element.getBoundingClientRect().top + window.pageYOffset - navbarHeight
+      window.scrollTo({ top: y, behavior: "smooth" })
+    }
+  }
+
   return (
     <div className="relative min-h-[calc(100vh-76px)] flex items-center">
       {/* Floating papers background */}
@@ -43,7 +53,7 @@ export default function Hero() {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <Button size="lg" variant="glow" className="px-8 group">
+            <Button size="lg" variant="glow" className="px-8 group" onClick={() => scrollToSection("free-audit")}>
               <TrendingUp className="mr-2 h-5 w-5 group-hover:animate-bounce" />
               Get a Free Audit
             </Button>
@@ -51,6 +61,7 @@ export default function Hero() {
               size="lg"
               variant="outline"
               className={`${isDark ? "text-white" : "text-blue-900"} border-blue-500 bg-blue-950/10 hover:bg-blue-500/20 group`}
+              onClick={() => scrollToSection("case-studies")}
             >
               <BarChart className="mr-2 h-5 w-5 group-hover:rotate-12 transition-transform" />
               View Case Studies
