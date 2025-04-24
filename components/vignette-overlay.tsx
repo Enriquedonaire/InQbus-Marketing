@@ -37,14 +37,18 @@ export default function VignetteOverlay({ intensity = 70, position = "top-left",
   // Aumentamos significativamente la opacidad para hacer la viñeta más oscura
   const maxOpacity = isDark ? (intensity / 100) * 0.95 : (intensity / 100) * 0.6
 
+  // Reducir la opacidad en el lado derecho para que sea más luminoso
+  const rightSideOpacity = maxOpacity * 0.6 // 60% de la opacidad máxima para el lado derecho
+
   // Crear un gradiente más complejo y oscuro para el vértice superior izquierdo
+  // con una transición más suave hacia el lado derecho
   const topLeftGradient = `
     radial-gradient(
       circle at top left, 
       rgba(0, 0, 0, ${maxOpacity}) 0%, 
       rgba(0, 0, 0, ${maxOpacity * 0.85}) ${size * 0.2}%, 
       rgba(0, 0, 0, ${maxOpacity * 0.7}) ${size * 0.4}%, 
-      rgba(0, 0, 0, ${maxOpacity * 0.4}) ${size * 0.6}%, 
+      rgba(0, 0, 0, ${rightSideOpacity}) ${size * 0.6}%, 
       rgba(0, 0, 0, 0) ${size}%
     )
   `
@@ -59,6 +63,6 @@ export default function VignetteOverlay({ intensity = 70, position = "top-left",
     },
   }
 
-  // Reducir el z-index para que esté por debajo del contenido principal
+  // Usar un z-index bajo para que esté por debajo del contenido principal
   return <div className="fixed inset-0 pointer-events-none z-5" style={gradientStyles[position]} aria-hidden="true" />
 }
