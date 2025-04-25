@@ -33,33 +33,28 @@ export default function VignetteOverlay({ intensity = 70, position = "top-left",
     }
   }, [])
 
-  // Calcular la opacidad basada en la intensidad y el tema
-  // Para el tema light, hacemos la viñeta mucho más sutil
-  const maxOpacity = isDark ? (intensity / 100) * 0.95 : (intensity / 100) * 0.25
+  // Mantenemos la opacidad alta en la esquina izquierda
+  const cornerOpacity = isDark ? 0.95 : 0.7
 
-  // Reducir aún más la opacidad en el lado derecho para el tema light
-  const rightSideOpacity = isDark ? maxOpacity * 0.6 : maxOpacity * 0.4
-
-  // Crear un gradiente más complejo y oscuro para el vértice superior izquierdo
-  // con una transición más suave hacia el lado derecho
-  const topLeftGradient = `
-    radial-gradient(
-      circle at top left, 
-      rgba(0, 0, 0, ${maxOpacity}) 0%, 
-      rgba(0, 0, 0, ${maxOpacity * 0.85}) ${size * 0.15}%, 
-      rgba(0, 0, 0, ${maxOpacity * 0.7}) ${size * 0.3}%, 
-      rgba(0, 0, 0, ${rightSideOpacity}) ${size * 0.5}%, 
-      rgba(0, 0, 0, 0) ${size}%
+  // Usamos una combinación de gradientes para asegurar que la esquina inferior derecha sea completamente transparente
+  const diagonalGradient = `
+    linear-gradient(
+      to bottom right,
+      rgba(0, 0, 0, ${cornerOpacity}) 0%,
+      rgba(0, 0, 0, ${isDark ? 0.7 : 0.4}) 15%,
+      rgba(0, 0, 0, ${isDark ? 0.4 : 0.2}) 30%,
+      rgba(0, 0, 0, ${isDark ? 0.2 : 0.05}) 45%,
+      rgba(0, 0, 0, 0) 60%
     )
   `
 
   // Estilos para diferentes posiciones de viñeta
   const gradientStyles = {
     "top-left": {
-      background: topLeftGradient,
+      background: diagonalGradient,
     },
     full: {
-      background: `radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, ${maxOpacity}) 100%)`,
+      background: `radial-gradient(ellipse at center, rgba(0, 0, 0, ${cornerOpacity}) 0%, rgba(0, 0, 0, 0) 100%)`,
     },
   }
 
