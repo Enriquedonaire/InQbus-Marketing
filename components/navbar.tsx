@@ -74,9 +74,7 @@ export default function Navbar() {
   const textColorClass = isDark ? "text-white" : "text-blue-900"
 
   return (
-    <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
+    <nav
       className={`flex items-center justify-between px-6 py-4 fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navbarBgClass}`}
     >
       <Link href="/" className="flex items-center space-x-2">
@@ -170,7 +168,7 @@ export default function Navbar() {
           </div>
         </motion.div>
       )}
-    </motion.nav>
+    </nav>
   )
 }
 
