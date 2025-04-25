@@ -34,11 +34,11 @@ export default function VignetteOverlay({ intensity = 70, position = "top-left",
   }, [])
 
   // Calcular la opacidad basada en la intensidad y el tema
-  // Aumentamos significativamente la opacidad para hacer la viñeta más oscura
-  const maxOpacity = isDark ? (intensity / 100) * 0.95 : (intensity / 100) * 0.6
+  // Para el tema light, hacemos la viñeta mucho más sutil
+  const maxOpacity = isDark ? (intensity / 100) * 0.95 : (intensity / 100) * 0.25
 
-  // Reducir la opacidad en el lado derecho para que sea más luminoso
-  const rightSideOpacity = maxOpacity * 0.6 // 60% de la opacidad máxima para el lado derecho
+  // Reducir aún más la opacidad en el lado derecho para el tema light
+  const rightSideOpacity = isDark ? maxOpacity * 0.6 : maxOpacity * 0.4
 
   // Crear un gradiente más complejo y oscuro para el vértice superior izquierdo
   // con una transición más suave hacia el lado derecho
@@ -46,9 +46,9 @@ export default function VignetteOverlay({ intensity = 70, position = "top-left",
     radial-gradient(
       circle at top left, 
       rgba(0, 0, 0, ${maxOpacity}) 0%, 
-      rgba(0, 0, 0, ${maxOpacity * 0.85}) ${size * 0.2}%, 
-      rgba(0, 0, 0, ${maxOpacity * 0.7}) ${size * 0.4}%, 
-      rgba(0, 0, 0, ${rightSideOpacity}) ${size * 0.6}%, 
+      rgba(0, 0, 0, ${maxOpacity * 0.85}) ${size * 0.15}%, 
+      rgba(0, 0, 0, ${maxOpacity * 0.7}) ${size * 0.3}%, 
+      rgba(0, 0, 0, ${rightSideOpacity}) ${size * 0.5}%, 
       rgba(0, 0, 0, 0) ${size}%
     )
   `
