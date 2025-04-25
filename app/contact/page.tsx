@@ -9,6 +9,11 @@ import { useTheme } from "@/components/theme-provider"
 import LayeredParticlesEffect from "@/components/layered-particles-effect"
 // Importar el componente de viñeta
 import VignetteOverlay from "@/components/vignette-overlay"
+// Cambiar la importación del efecto de luz
+// import DeskLampEffect from "@/components/desk-lamp-effect"
+
+// Por esta nueva importación:
+import SubtleLightEffect from "@/components/subtle-light-effect"
 
 export default function ContactPage() {
   const { theme } = useTheme()
@@ -38,6 +43,9 @@ export default function ContactPage() {
       <div className="z-3 relative">
         <MouseMoveEffect />
       </div>
+
+      {/* Subtle light effect - z-index 4 */}
+      <SubtleLightEffect />
 
       {/* Viñeta - z-index medio-bajo (5) */}
       <VignetteOverlay intensity={90} position="top-left" size={80} />
