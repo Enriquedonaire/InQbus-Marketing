@@ -36,15 +36,16 @@ export default function VignetteOverlay({ intensity = 70, position = "top-left",
   // Mantenemos la opacidad alta en la esquina izquierda
   const cornerOpacity = isDark ? 0.95 : 0.7
 
-  // Usamos una combinación de gradientes para asegurar que la esquina inferior derecha sea completamente transparente
+  // Ajustamos los puntos de parada para que la transición sea más rápida hacia la derecha
+  // Esto dará más margen claro al lado derecho
   const diagonalGradient = `
-    linear-gradient(
-      to bottom right,
-      rgba(0, 0, 0, ${cornerOpacity}) 0%,
-      rgba(0, 0, 0, ${isDark ? 0.7 : 0.4}) 15%,
-      rgba(0, 0, 0, ${isDark ? 0.4 : 0.2}) 30%,
-      rgba(0, 0, 0, ${isDark ? 0.2 : 0.05}) 45%,
-      rgba(0, 0, 0, 0) 60%
+    radial-gradient(
+      circle at top left, 
+      rgba(0, 0, 0, ${cornerOpacity}) 0%, 
+      rgba(0, 0, 0, ${cornerOpacity * 0.8}) 8%, 
+      rgba(0, 0, 0, ${isDark ? 0.6 : 0.35}) 20%, 
+      rgba(0, 0, 0, ${isDark ? 0.3 : 0.1}) 40%, 
+      rgba(0, 0, 0, 0) 65%
     )
   `
 
