@@ -1,19 +1,14 @@
 "use client"
-
-import ContactForm from "@/components/contact-form"
+import { Suspense } from "react"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import MouseMoveEffect from "@/components/mouse-move-effect"
 import { MapPin, Mail, Clock } from "lucide-react"
 import { useTheme } from "@/components/theme-provider"
 import LayeredParticlesEffect from "@/components/layered-particles-effect"
-// Importar el componente de viñeta
 import VignetteOverlay from "@/components/vignette-overlay"
-// Cambiar la importación del efecto de luz
-// import DeskLampEffect from "@/components/desk-lamp-effect"
-
-// Por esta nueva importación:
 import SubtleLightEffect from "@/components/subtle-light-effect"
+import ContactForm from "@/components/contact-form"
 
 export default function ContactPage() {
   const { theme } = useTheme()
@@ -119,7 +114,30 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <ContactForm />
+          {/* Envolvemos el formulario en Suspense */}
+          <Suspense
+            fallback={
+              <div className="max-w-3xl mx-auto">
+                <div className="border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-black/50 backdrop-blur-sm rounded-lg p-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    {[0, 1, 2, 3].map((i) => (
+                      <div key={i} className="space-y-2">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-20 animate-pulse"></div>
+                        <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded w-full animate-pulse"></div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-2 mb-6">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-40 animate-pulse"></div>
+                    <div className="h-32 bg-gray-200 dark:bg-gray-800 rounded w-full animate-pulse"></div>
+                  </div>
+                  <div className="h-12 bg-blue-500 rounded-md w-full animate-pulse"></div>
+                </div>
+              </div>
+            }
+          >
+            <ContactForm />
+          </Suspense>
 
           <div className="mt-16">
             <div
