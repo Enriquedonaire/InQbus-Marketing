@@ -6,7 +6,7 @@
 
 InQbus Marketing es una plataforma web moderna para una agencia de marketing digital que ofrece servicios de SEO, marketing de contenidos, publicidad digital y más. El sitio cuenta con una interfaz atractiva y dinámica con efectos visuales avanzados, formularios interactivos y un panel de administración para gestionar contenidos y tareas.
 
-**Visita el sitio:** [inqubus-marketing.vercel.app](https://inqubus-marketing.vercel.app)
+**Visita el sitio:** [inqubus-marketing.vercel.app](https://inqbus.vercel.app)
 
 ## ✨ Características
 
@@ -188,9 +188,3 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 Para cualquier consulta o sugerencia, por favor contacta a través de [contacto@inqubus.com](mailto:contacto@inqubus.com).
 \`\`\`
 
-
-
-
-
-```types file="lib/supabase/database.types"
-... This file was left out for brevity. Assume it is correct and does not need any modifications. ...
