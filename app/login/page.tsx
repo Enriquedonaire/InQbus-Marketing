@@ -2,11 +2,10 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/lib/context/auth-context"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import NetworkParticles from "@/components/network-particles"
@@ -14,86 +13,124 @@ import NetworkParticles from "@/components/network-particles"
 export default function LoginPage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
+  const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const { signIn } = useAuth()
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Verificar si ya hay una sesión activa
+  useEffect(() => {
+    const authData = localStorage.getItem("inqubus_auth")
+    if (authData) {
+      setIsAuthenticated(true)
+      const redirectPath = JSON.parse(authData).role === "admin" ? "/admin" : "/"
+      router.push(redirectPath)
+    }
+  }, [router])
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError("")
     setLoading(true)
+    setError(null)
 
     try {
-      const result = await signIn(username, password)
+      // Validar credenciales hardcodeadas
+      if (
+        (username === "Enrique Andres Donaire" && password === "<Q2N41R3/98-40-31/>") ||
+        (username === "Recruiter" && password === "Recruiter-Gest-2025")
+      ) {
+        // Determinar el rol basado en el username
+        const role = username === "Enrique Andres Donaire" ? "admin" : "recruiter"
 
-      if (result.success) {
-        router.push("/")
+        // Guardar en localStorage
+        localStorage.setItem("inqubus_auth", JSON.stringify({ username, role }))
+
+        // Establecer un timeout para asegurar que localStorage se actualice antes de redirigir
+        setTimeout(() => {
+          setIsAuthenticated(true)
+          // Redirigir según el rol
+          if (role === "admin") {
+            router.push("/admin")
+          } else {
+            router.push("/")
+          }
+        }, 100)
       } else {
-        setError(result.message)
+        setError("Credenciales inválidas. Por favor, intente nuevamente.")
       }
     } catch (err) {
-      setError("Ocurrió un error al iniciar sesión. Inténtalo de nuevo.")
-      console.error(err)
+      console.error("Error de login:", err)
+      setError("Ocurrió un error durante el inicio de sesión. Por favor, intente nuevamente.")
     } finally {
       setLoading(false)
     }
   }
 
+  if (isAuthenticated) {
+    return <div className="min-h-screen flex items-center justify-center">Redirigiendo...</div>
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-black relative overflow-hidden">
       <div className="absolute inset-0 z-0">
         <NetworkParticles />
       </div>
 
-      <Card className="w-[350px] z-10">
+      <Card className="w-[350px] z-10 bg-black/80 border border-blue-900/50 backdrop-blur-sm">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
-            <div className="text-2xl font-bold">
-              In<span className="text-blue-600">Q</span>bus
-            </div>
+            <img src="/inqubus-logo.png" alt="InQbus Logo" className="h-12" />
           </div>
-          <CardTitle className="text-2xl text-center">Iniciar Sesión</CardTitle>
-          <CardDescription className="text-center">Ingresa tus credenciales para acceder</CardDescription>
+          <CardTitle className="text-2xl text-center text-white">Acceso al Portal</CardTitle>
+          <CardDescription className="text-center text-gray-400">
+            Ingrese sus credenciales para continuar
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <form onSubmit={handleSubmit}>
+          {error && (
+            <div className="bg-red-500/20 border border-red-500/50 text-red-200 text-sm p-2 rounded">{error}</div>
+          )}
+          <form onSubmit={handleLogin}>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="username">Nombre de usuario</Label>
+                <Label htmlFor="username" className="text-gray-300">
+                  Nombre de Usuario
+                </Label>
                 <Input
                   id="username"
-                  placeholder="Ingresa tu nombre de usuario"
+                  placeholder="Ingrese su nombre de usuario"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
+                  className="bg-gray-900/50 border-gray-700 text-white"
+                  autoComplete="username"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Contraseña</Label>
+                <Label htmlFor="password" className="text-gray-300">
+                  Contraseña
+                </Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Ingresa tu contraseña"
+                  placeholder="Ingrese su contraseña"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  className="bg-gray-900/50 border-gray-700 text-white"
+                  autoComplete="current-password"
                 />
               </div>
-
-              {error && <div className="text-sm text-red-500 mt-2">{error}</div>}
-
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={loading}>
                 {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
               </Button>
             </div>
           </form>
         </CardContent>
-        <CardFooter className="flex flex-col">
-          <div className="text-sm text-center text-gray-500 mt-2">Credenciales de demostración:</div>
-          <div className="text-xs text-center text-gray-500 mt-1">
-            Admin: Enrique Andres Donaire / Recruiter: Recruiter
-          </div>
+        <CardFooter>
+          <p className="text-xs text-center w-full text-gray-500">
+            Acceso exclusivo para personal autorizado de InQbus Marketing
+          </p>
         </CardFooter>
       </Card>
     </div>
