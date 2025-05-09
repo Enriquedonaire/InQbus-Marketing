@@ -2,23 +2,22 @@
 
 import Hero from "@/components/hero"
 import Navbar from "@/components/navbar"
-import Services from "@/components/services"
-import Features from "@/components/features"
-import PricingFixed from "@/components/pricing-fixed" // Use the fixed version
 import Footer from "@/components/footer"
 import MouseMoveEffect from "@/components/mouse-move-effect"
-import ContactForm from "@/components/contact-form"
 import { useTheme } from "@/components/theme-provider"
-import { SimpleErrorBoundary } from "@/components/simple-error-boundary" // Updated import
+import { SimpleErrorBoundary } from "@/components/simple-error-boundary"
 import LayeredParticlesEffect from "@/components/layered-particles-effect"
 import BackToTop from "@/components/back-to-top"
-import FreeAudit from "@/components/free-audit"
-import CaseStudies from "@/components/case-studies"
-// Importar el componente de viñeta
 import VignetteOverlay from "@/components/vignette-overlay"
-// Cambiar la importación del efecto de luz
-// Por esta nueva importación:
 import SubtleLightEffect from "@/components/subtle-light-effect"
+
+// Importar los componentes que usan Supabase
+import ServicesWithSupabase from "@/components/services-with-supabase"
+import Features from "@/components/features"
+import CaseStudiesWithSupabase from "@/components/case-studies-with-supabase"
+import FreeAuditWithSupabase from "@/components/free-audit-with-supabase"
+import PricingWithSupabase from "@/components/pricing-with-supabase"
+import ContactFormWithSupabase from "@/components/contact-form-with-supabase"
 
 export default function Home() {
   const { theme } = useTheme()
@@ -64,24 +63,24 @@ export default function Home() {
           <Hero />
         </div>
         <div id="services">
-          <Services />
+          <ServicesWithSupabase />
         </div>
         <div id="features">
           <Features />
         </div>
         <div id="case-studies">
-          <CaseStudies />
+          <CaseStudiesWithSupabase />
         </div>
         <div id="free-audit">
-          <FreeAudit />
+          <FreeAuditWithSupabase />
         </div>
         <div id="pricing">
           <SimpleErrorBoundary>
-            <PricingFixed />
+            <PricingWithSupabase />
           </SimpleErrorBoundary>
         </div>
         <div id="contact">
-          <ContactForm />
+          <ContactFormWithSupabase />
         </div>
         <Footer />
       </div>

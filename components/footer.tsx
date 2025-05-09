@@ -121,6 +121,12 @@ export default function Footer() {
             </Link>
           </div>
         </div>
+        <div className="mt-8 text-center text-sm text-muted-foreground">
+          <p>© {new Date().getFullYear()} Inqubus. Todos los derechos reservados.</p>
+          <Link href="/admin" className="text-primary hover:underline mt-2 inline-block">
+            Administración
+          </Link>
+        </div>
       </div>
     </footer>
   )
