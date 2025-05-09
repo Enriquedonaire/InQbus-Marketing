@@ -39,83 +39,61 @@ InQbus Marketing es una plataforma web moderna para una agencia de marketing dig
 
 ## 📁 Estructura del Proyecto
 
-\\\
-inqubus-marketing/
-├── app/                      # Rutas y páginas (Next.js App Router)
-│   ├── actions/              # Server Actions
-│   │   ├── audit-actions.ts
-│   │   ├── contact-actions.ts
-│   │   └── todo-actions.ts
-│   ├── admin/                # Panel de administración
-│   ├── api/                  # API Routes
-│   │   └── seed-data/
-│   ├── dashboard/            # Dashboard de tareas
-│   │   └── todos/
-│   ├── contact/              # Página de contacto
-│   ├── get-started/          # Página para comenzar
-│   ├── globals.css           # Estilos globales
-│   ├── layout.tsx            # Layout principal
-│   └── page.tsx              # Página principal
-├── components/               # Componentes reutilizables
-│   ├── admin/                # Componentes de administración
-│   ├── error-boundary/       # Manejo de errores
-│   ├── todos/                # Componentes de tareas
-│   ├── ui/                   # Componentes de UI (shadcn)
-│   ├── advanced-particles.tsx
-│   ├── back-to-top.tsx
-│   ├── case-studies.tsx
-│   ├── case-studies-with-supabase.tsx
-│   ├── contact-form.tsx
-│   ├── contact-form-with-supabase.tsx
-│   ├── desk-lamp-effect.tsx
-│   ├── enhanced-light-effect.tsx
-│   ├── features.tsx
-│   ├── floating-paper.tsx
-│   ├── footer.tsx
-│   ├── free-audit.tsx
-│   ├── free-audit-with-supabase.tsx
-│   ├── gradient-text.tsx
-│   ├── hero.tsx
-│   ├── layered-particles-effect.tsx
-│   ├── light-entry-effect.tsx
-│   ├── mouse-move-effect.tsx
-│   ├── navbar.tsx
-│   ├── network-particles.tsx
-│   ├── particle-config-selector.tsx
-│   ├── particles-effect.tsx
-│   ├── pricing-fixed.tsx
-│   ├── pricing-with-supabase.tsx
-│   ├── pricing.tsx
-│   ├── robo-animation.tsx
-│   ├── services.tsx
-│   ├── services-with-supabase.tsx
-│   ├── simple-error-boundary.tsx
-│   ├── sparkles.tsx
-│   ├── subtle-light-effect.tsx
-│   ├── theme-provider.tsx
-│   ├── theme-switcher.tsx
-│   └── vignette-overlay.tsx
-├── lib/                      # Utilidades y configuraciones
-│   ├── error-logging.ts
-│   ├── hoc/
-│   ├── hooks/
-│   │   ├── use-error-handler.ts
-│   │   ├── use-mouse-position.ts
-│   │   ├── use-safe-props.ts
-│   │   └── use-theme.tsx
-│   ├── supabase/
-│   │   ├── client.ts
-│   │   ├── database.types.ts
-│   │   └── server.ts
-│   └── utils/
-│       └── fix-tailwind-props.tsx
-├── public/                   # Archivos estáticos
-│   └── inqubus-logo.png      # Logo de InQbus
-├── docs/                     # Documentación
-├── tailwind.config.ts        # Configuración de Tailwind
-├── package.json              # Dependencias
-└── tsconfig.json             # Configuración de TypeScript
-\\\
+```bash
+src/
+├── components/              # Componentes reutilizables
+│   ├── Cart.jsx             # Componente del carrito lateral
+│   ├── ErrorDisplay.jsx     # Componente para mostrar errores
+│   ├── Header.jsx           # Cabecera con navegación y carrito
+│   ├── ProductActions.jsx   # Acciones de producto (selección de opciones)
+│   ├── ProductCard.jsx      # Tarjeta de producto para el listado
+│   ├── ProductDescription.jsx # Descripción detallada del producto
+│   ├── ProductImage.jsx     # Componente para mostrar la imagen del producto
+│   ├── ProductList.jsx      # Lista de productos con grid responsive
+│   ├── SearchBar.jsx        # Barra de búsqueda para filtrar productos
+│   ├── ThemeToggle.jsx      # Botón para cambiar entre modo claro y oscuro
+│   └── UI/                  # Componentes de UI reutilizables
+│       ├── toaster.jsx      # Componente para mostrar notificaciones
+│       └── use-toast.js     # Hook para usar el sistema de notificaciones
+├── context/
+│   ├── CartContext.jsx      # Contexto para gestión del carrito
+│   └── ThemeContext.jsx     # Contexto para gestión del tema
+├── hooks/
+│   └── useDebounce.js       # Hook personalizado para debounce en búsquedas
+├── lib/
+│   └── utils.js             # Funciones de utilidad
+├── pages/
+│   ├── CheckoutPage.jsx     # Página de proceso de compra
+│   ├── HomePage.jsx         # Página principal con listado de productos
+│   ├── NotFoundPage.jsx     # Página de error 404
+│   ├── ProductDetailPage.jsx# Página de detalle de producto
+│   └── ProductListPage.jsx  # Página de listado de productos
+├── services/
+│   └── api.js               # Servicios para comunicación con la API
+├── __test__/                # Tests unitarios y de integración
+│   ├── api.test.js
+│   ├── CartContext.test.jsx
+│   ├── CheckoutPage.test.jsx
+│   ├── ErrorDisplay.test.jsx
+│   ├── Header.test.jsx
+│   ├── NotFound.test.jsx
+│   ├── ProductCard.test.jsx
+│   ├── ProductDescription.test.jsx
+│   ├── ProductImage.test.jsx
+│   ├── ProductListPage.test.jsx
+│   ├── ThemeToggle.test.jsx
+│   └── useToast.test.js
+├── App.jsx                  # Componente principal de la aplicación
+├── index.css                # Estilos globales
+├── index.jsx                # Punto de entrada de la aplicación
+├── main.jsx                 # Archivo HTML principal
+├── vite.config.js           # Configuración de Vite
+├── tailwind.config.js       # Configuración de Tailwind CSS
+├── postcss.config.js        # Configuración de PostCSS
+├── jest.config.js           # Configuración de Jest para testing
+├── package.json             # Dependencias y scripts
+└── README.md                # Documentación del proyecto
+```
 
 ## 🔧 Instalación y Uso
 
