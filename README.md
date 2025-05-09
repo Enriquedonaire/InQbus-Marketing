@@ -117,55 +117,58 @@ inqubus-marketing/
 └── tsconfig.json             # Configuración de TypeScript
 ```
 
-
 ## 🔧 Instalación y Uso
 
 1. **Clonar el repositorio**
-\`\`\`bash
-git clone [https://github.com/tu-usuario/inqubus-marketing.git](https://github.com/Enriquedonaire/InQbus-Marketing)
+```bash
+git clone https://github.com/Enriquedonaire/InQbus-Marketing.git
 cd inqubus-marketing
-\`\`\`
+```
 
 2. **Instalar dependencias**
-\`\`\`bash
+```bash
 npm install
-\`\`\`
+```
 
 3. **Configurar variables de entorno**
+
 Crea un archivo `.env.local` con las siguientes variables:
-\`\`\`
+
+```env
 NEXT_PUBLIC_SUPABASE_URL=tu-url-de-supabase
 NEXT_PUBLIC_SUPABASE_ANON_KEY=tu-clave-anonima-de-supabase
-\`\`\`
+```
 
 4. **Inicializar la base de datos**
-Ejecuta la ruta API para sembrar datos iniciales:
-\`\`\`bash
+```bash
 curl -X POST http://localhost:3000/api/seed-data
-\`\`\`
+```
 
 5. **Ejecutar en desarrollo**
-\`\`\`bash
+```bash
 npm run dev
-\`\`\`
+```
 
 6. **Construir para producción**
-\`\`\`bash
+```bash
 npm run build
 npm start
-\`\`\`
+```
 
 ## 🧩 Características Principales
 
 ### Modo Oscuro/Claro
+
 El sitio incluye un selector de tema que permite a los usuarios cambiar entre modo oscuro y claro según sus preferencias.
 
 ### Efectos Visuales
+
 - **Partículas Interactivas**: Diferentes configuraciones de partículas que responden al movimiento del ratón.
 - **Efecto de Luz**: Efecto de luz sutil que añade profundidad y dinamismo a la interfaz.
 - **Animaciones**: Transiciones y animaciones suaves para mejorar la experiencia de usuario.
 
 ### Panel de Administración
+
 Accede a `/admin` para gestionar todos los datos de la aplicación:
 - Contactos
 - Solicitudes de auditoría
@@ -175,6 +178,7 @@ Accede a `/admin` para gestionar todos los datos de la aplicación:
 - Tareas
 
 ### Sistema de Tareas
+
 Accede a `/dashboard` para gestionar tareas con funcionalidades como:
 - Creación y edición de tareas
 - Filtrado por estado y prioridad
@@ -182,9 +186,9 @@ Accede a `/dashboard` para gestionar tareas con funcionalidades como:
 - Seguimiento de progreso
 
 ## 📝 Licencia
+
 Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
 
 ## 👥 Contacto
-Para cualquier consulta o sugerencia, por favor contacta a través de [contacto@inqubus.com](mailto:contacto@inqubus.com).
-\`\`\`
 
+Para cualquier consulta o sugerencia, por favor contacta a través de [contacto@inqubus.com](mailto:contacto@inqubus.com).
