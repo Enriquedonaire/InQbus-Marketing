@@ -2,7 +2,8 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle, FileText, ArrowRight, Download } from "lucide-react"
@@ -19,7 +20,9 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { submitGetStartedRequest } from "@/app/actions/get-started-actions"
 
-export default function GetStartedPage() {
+// Componente para la parte que usa useSearchParams
+function GetStartedContent() {
+  const searchParams = useSearchParams()
   const { theme } = useTheme()
   const isDark = theme === "dark"
 
@@ -33,6 +36,19 @@ export default function GetStartedPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+
+  // Efecto para establecer el paquete seleccionado desde los parámetros de URL
+  useEffect(() => {
+    const packageParam = searchParams.get("package")
+    if (packageParam) {
+      setSelectedPackage(packageParam)
+      setShowForm(true)
+      // Scroll al formulario
+      setTimeout(() => {
+        document.getElementById("get-started-form")?.scrollIntoView({ behavior: "smooth" })
+      }, 100)
+    }
+  }, [searchParams])
 
   // Función para seleccionar un paquete
   const handleSelectPackage = (packageName: string) => {
@@ -88,6 +104,203 @@ export default function GetStartedPage() {
   }
 
   return (
+    <>
+      <section className="py-20 px-6">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <h1 className={`text-4xl md:text-5xl font-bold ${isDark ? "text-white" : "text-blue-900"} mb-6`}>
+              Comienza con <span className="text-blue-500">InQbus</span>
+            </h1>
+            <p className={`${isDark ? "text-gray-400" : "text-gray-600"} max-w-2xl mx-auto text-lg`}>
+              Selecciona el paquete de marketing que mejor se adapte a tus necesidades y comienza a impulsar tu negocio
+              hoy mismo.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            {marketingProducts.map((product, index) => (
+              <Card
+                key={index}
+                className={`${
+                  isDark ? "bg-black/50 border-white/10" : "bg-white/80 border-gray-200"
+                } backdrop-blur-sm hover:border-blue-500/50 transition-all`}
+              >
+                <CardHeader>
+                  <div className="mb-2 flex justify-between items-start">
+                    <div className={`p-2 rounded-lg ${product.bgColor}`}>{product.icon}</div>
+                    <span className="text-sm font-medium px-2.5 py-0.5 rounded bg-blue-500/30 text-white/80">
+                      {product.tag}
+                    </span>
+                  </div>
+                  <CardTitle className={`${isDark ? "text-white" : "text-blue-900"} text-xl`}>
+                    {product.title}
+                  </CardTitle>
+                  <CardDescription className={isDark ? "text-gray-400" : "text-gray-600"}>
+                    {product.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {product.features.map((feature, i) => (
+                      <li key={i} className="flex items-start">
+                        <CheckCircle className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span className={`${isDark ? "text-gray-300" : "text-gray-700"} text-sm`}>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <CardFooter>
+                  <Button variant="glow" className="w-full" onClick={() => handleSelectPackage(product.title)}>
+                    Seleccionar
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+
+          <div
+            className={`${
+              isDark ? "bg-black/50 border-white/10" : "bg-white/80 border-gray-200"
+            } border backdrop-blur-sm rounded-lg p-8 mb-16`}
+          >
+            <h2 className={`text-2xl font-bold ${isDark ? "text-white" : "text-blue-900"} mb-6`}>
+              Documentación Necesaria
+            </h2>
+            <p className={`${isDark ? "text-gray-400" : "text-gray-600"} mb-8`}>
+              Para comenzar con nuestros servicios, necesitaremos la siguiente documentación. Esto nos ayudará a
+              entender mejor tu negocio y crear estrategias efectivas.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {documents.map((doc, index) => (
+                <div
+                  key={index}
+                  className={`flex items-start p-4 ${
+                    isDark ? "bg-black/30 border-white/5" : "bg-white/60 border-gray-100"
+                  } rounded-lg border`}
+                >
+                  <FileText className="h-6 w-6 text-blue-500 mr-3 flex-shrink-0" />
+                  <div>
+                    <h3 className={`${isDark ? "text-white" : "text-blue-900"} font-medium mb-1`}>{doc.title}</h3>
+                    <p className={`${isDark ? "text-gray-400" : "text-gray-600"} text-sm mb-3`}>{doc.description}</p>
+                    {doc.template && (
+                      <Link
+                        href={doc.template}
+                        className="inline-flex items-center text-sm text-blue-400 hover:text-blue-300"
+                      >
+                        <Download className="h-4 w-4 mr-1" />
+                        Descargar plantilla
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Formulario de Get Started */}
+          {showForm && (
+            <div
+              id="get-started-form"
+              className={`${
+                isDark ? "bg-black/50 border-white/10" : "bg-white/80 border-gray-200"
+              } border backdrop-blur-sm rounded-lg p-8 mb-16`}
+            >
+              <h2 className={`text-2xl font-bold ${isDark ? "text-white" : "text-blue-900"} mb-6`}>
+                Completa tus datos para comenzar con {selectedPackage}
+              </h2>
+
+              {success ? (
+                <div className="bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded mb-6">
+                  <h3 className="text-lg font-semibold mb-2">¡Solicitud enviada con éxito!</h3>
+                  <p>
+                    Gracias por tu interés. Nos pondremos en contacto contigo lo antes posible para comenzar con el
+                    proceso.
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {error && (
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                      <p>{error}</p>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Nombre</Label>
+                      <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="company">Empresa (opcional)</Label>
+                    <Input id="company" value={company} onChange={(e) => setCompany(e.target.value)} />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="message">Mensaje (opcional)</Label>
+                    <Textarea
+                      id="message"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder="Cuéntanos más sobre tu negocio y objetivos"
+                      rows={4}
+                    />
+                  </div>
+
+                  <Button type="submit" className="w-full" size="lg" disabled={loading}>
+                    {loading ? "Enviando..." : "Comenzar Ahora"}
+                  </Button>
+                </form>
+              )}
+            </div>
+          )}
+
+          <div
+            className={`${
+              isDark
+                ? "bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-white/10"
+                : "bg-gradient-to-r from-blue-100/50 to-purple-100/50 border-gray-200"
+            } border backdrop-blur-sm rounded-lg p-8 text-center`}
+          >
+            <h2 className={`text-2xl font-bold ${isDark ? "text-white" : "text-blue-900"} mb-4`}>
+              ¿Listo para comenzar?
+            </h2>
+            <p className={`${isDark ? "text-gray-400" : "text-gray-600"} mb-6 max-w-2xl mx-auto`}>
+              Nuestro equipo está listo para ayudarte a alcanzar tus objetivos de marketing. Completa el formulario y
+              comencemos a trabajar juntos.
+            </p>
+            <Link href="/contact">
+              <Button size="lg" variant="glow" className="hover:translate-x-1">
+                Completar Formulario
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+    </>
+  )
+}
+
+// Componente principal que envuelve el contenido en Suspense
+export default function GetStartedPage() {
+  const { theme } = useTheme()
+  const isDark = theme === "dark"
+
+  return (
     <main
       className={`min-h-screen ${
         isDark ? "bg-black/[0.96] bg-grid-white/[0.02]" : "bg-gray-50 bg-grid-black/[0.02]"
@@ -121,192 +334,9 @@ export default function GetStartedPage() {
         {/* Navbar - z-index más alto (50) */}
         <Navbar />
 
-        <section className="py-20 px-6">
-          <div className="container mx-auto max-w-6xl">
-            <div className="text-center mb-16">
-              <h1 className={`text-4xl md:text-5xl font-bold ${isDark ? "text-white" : "text-blue-900"} mb-6`}>
-                Comienza con <span className="text-blue-500">InQbus</span>
-              </h1>
-              <p className={`${isDark ? "text-gray-400" : "text-gray-600"} max-w-2xl mx-auto text-lg`}>
-                Selecciona el paquete de marketing que mejor se adapte a tus necesidades y comienza a impulsar tu
-                negocio hoy mismo.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-              {marketingProducts.map((product, index) => (
-                <Card
-                  key={index}
-                  className={`${
-                    isDark ? "bg-black/50 border-white/10" : "bg-white/80 border-gray-200"
-                  } backdrop-blur-sm hover:border-blue-500/50 transition-all`}
-                >
-                  <CardHeader>
-                    <div className="mb-2 flex justify-between items-start">
-                      <div className={`p-2 rounded-lg ${product.bgColor}`}>{product.icon}</div>
-                      <span className="text-sm font-medium px-2.5 py-0.5 rounded bg-blue-500/30 text-white/80">
-                        {product.tag}
-                      </span>
-                    </div>
-                    <CardTitle className={`${isDark ? "text-white" : "text-blue-900"} text-xl`}>
-                      {product.title}
-                    </CardTitle>
-                    <CardDescription className={isDark ? "text-gray-400" : "text-gray-600"}>
-                      {product.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2">
-                      {product.features.map((feature, i) => (
-                        <li key={i} className="flex items-start">
-                          <CheckCircle className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
-                          <span className={`${isDark ? "text-gray-300" : "text-gray-700"} text-sm`}>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                  <CardFooter>
-                    <Button variant="glow" className="w-full" onClick={() => handleSelectPackage(product.title)}>
-                      Seleccionar
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-
-            <div
-              className={`${
-                isDark ? "bg-black/50 border-white/10" : "bg-white/80 border-gray-200"
-              } border backdrop-blur-sm rounded-lg p-8 mb-16`}
-            >
-              <h2 className={`text-2xl font-bold ${isDark ? "text-white" : "text-blue-900"} mb-6`}>
-                Documentación Necesaria
-              </h2>
-              <p className={`${isDark ? "text-gray-400" : "text-gray-600"} mb-8`}>
-                Para comenzar con nuestros servicios, necesitaremos la siguiente documentación. Esto nos ayudará a
-                entender mejor tu negocio y crear estrategias efectivas.
-              </p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {documents.map((doc, index) => (
-                  <div
-                    key={index}
-                    className={`flex items-start p-4 ${
-                      isDark ? "bg-black/30 border-white/5" : "bg-white/60 border-gray-100"
-                    } rounded-lg border`}
-                  >
-                    <FileText className="h-6 w-6 text-blue-500 mr-3 flex-shrink-0" />
-                    <div>
-                      <h3 className={`${isDark ? "text-white" : "text-blue-900"} font-medium mb-1`}>{doc.title}</h3>
-                      <p className={`${isDark ? "text-gray-400" : "text-gray-600"} text-sm mb-3`}>{doc.description}</p>
-                      {doc.template && (
-                        <Link
-                          href={doc.template}
-                          className="inline-flex items-center text-sm text-blue-400 hover:text-blue-300"
-                        >
-                          <Download className="h-4 w-4 mr-1" />
-                          Descargar plantilla
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Formulario de Get Started */}
-            {showForm && (
-              <div
-                id="get-started-form"
-                className={`${
-                  isDark ? "bg-black/50 border-white/10" : "bg-white/80 border-gray-200"
-                } border backdrop-blur-sm rounded-lg p-8 mb-16`}
-              >
-                <h2 className={`text-2xl font-bold ${isDark ? "text-white" : "text-blue-900"} mb-6`}>
-                  Completa tus datos para comenzar con {selectedPackage}
-                </h2>
-
-                {success ? (
-                  <div className="bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded mb-6">
-                    <h3 className="text-lg font-semibold mb-2">¡Solicitud enviada con éxito!</h3>
-                    <p>
-                      Gracias por tu interés. Nos pondremos en contacto contigo lo antes posible para comenzar con el
-                      proceso.
-                    </p>
-                  </div>
-                ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    {error && (
-                      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        <p>{error}</p>
-                      </div>
-                    )}
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">Nombre</Label>
-                        <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="company">Empresa (opcional)</Label>
-                      <Input id="company" value={company} onChange={(e) => setCompany(e.target.value)} />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="message">Mensaje (opcional)</Label>
-                      <Textarea
-                        id="message"
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        placeholder="Cuéntanos más sobre tu negocio y objetivos"
-                        rows={4}
-                      />
-                    </div>
-
-                    <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                      {loading ? "Enviando..." : "Comenzar Ahora"}
-                    </Button>
-                  </form>
-                )}
-              </div>
-            )}
-
-            <div
-              className={`${
-                isDark
-                  ? "bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-white/10"
-                  : "bg-gradient-to-r from-blue-100/50 to-purple-100/50 border-gray-200"
-              } border backdrop-blur-sm rounded-lg p-8 text-center`}
-            >
-              <h2 className={`text-2xl font-bold ${isDark ? "text-white" : "text-blue-900"} mb-4`}>
-                ¿Listo para comenzar?
-              </h2>
-              <p className={`${isDark ? "text-gray-400" : "text-gray-600"} mb-6 max-w-2xl mx-auto`}>
-                Nuestro equipo está listo para ayudarte a alcanzar tus objetivos de marketing. Completa el formulario y
-                comencemos a trabajar juntos.
-              </p>
-              <Link href="/contact">
-                <Button size="lg" variant="glow" className="hover:translate-x-1">
-                  Completar Formulario
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
+        <Suspense fallback={<div className="py-20 px-6 text-center">Cargando...</div>}>
+          <GetStartedContent />
+        </Suspense>
 
         <Footer />
       </div>
