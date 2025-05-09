@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -15,18 +15,21 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const router = useRouter()
 
-  // Verificar si ya hay una sesión activa
-  useEffect(() => {
-    const authData = localStorage.getItem("inqubus_auth")
-    if (authData) {
-      setIsAuthenticated(true)
-      const redirectPath = JSON.parse(authData).role === "admin" ? "/admin" : "/"
-      router.push(redirectPath)
+  // Función para limpiar cualquier dato de autenticación existente
+  const clearAuthData = () => {
+    try {
+      localStorage.removeItem("inqubus_auth")
+    } catch (e) {
+      console.error("Error al limpiar datos de autenticación:", e)
     }
-  }, [router])
+  }
+
+  // Limpiar datos de autenticación al cargar la página
+  if (typeof window !== "undefined") {
+    clearAuthData()
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,18 +46,19 @@ export default function LoginPage() {
         const role = username === "Enrique Andres Donaire" ? "admin" : "recruiter"
 
         // Guardar en localStorage
-        localStorage.setItem("inqubus_auth", JSON.stringify({ username, role }))
+        try {
+          localStorage.setItem("inqubus_auth", JSON.stringify({ username, role }))
 
-        // Establecer un timeout para asegurar que localStorage se actualice antes de redirigir
-        setTimeout(() => {
-          setIsAuthenticated(true)
           // Redirigir según el rol
           if (role === "admin") {
             router.push("/admin")
           } else {
             router.push("/")
           }
-        }, 100)
+        } catch (storageError) {
+          console.error("Error al guardar en localStorage:", storageError)
+          setError("Error al guardar la sesión. Intente nuevamente.")
+        }
       } else {
         setError("Credenciales inválidas. Por favor, intente nuevamente.")
       }
@@ -64,10 +68,6 @@ export default function LoginPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  if (isAuthenticated) {
-    return <div className="min-h-screen flex items-center justify-center">Redirigiendo...</div>
   }
 
   return (
