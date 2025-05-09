@@ -2,15 +2,15 @@
 
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowRight } from "lucide-react"
 import GradientText from "@/components/gradient-text"
 import { useTheme } from "@/components/theme-provider"
+import Image from "next/image"
 
 const caseStudies = [
   {
     title: "Aumento de 300% en tráfico orgánico",
-    client: "E-commerce de Moda",
+    client: "Cliente: E-commerce de Moda",
     description:
       "Implementamos una estrategia SEO completa que resultó en un aumento significativo del tráfico y un 150% más de conversiones en 6 meses.",
     image: "/stylish-online-storefront.png",
@@ -24,7 +24,7 @@ const caseStudies = [
   },
   {
     title: "Campaña viral en redes sociales",
-    client: "Startup de Tecnología",
+    client: "Cliente: Startup de Tecnología",
     description:
       "Diseñamos una campaña que generó más de 1 millón de impresiones y 50,000 nuevos seguidores en un mes, aumentando las descargas de la app en un 200%.",
     image: "/interconnected-social-network.png",
@@ -38,7 +38,7 @@ const caseStudies = [
   },
   {
     title: "Rediseño web con enfoque en conversión",
-    client: "Agencia de Viajes",
+    client: "Cliente: Agencia de Viajes",
     description:
       "Rediseñamos su sitio web con un enfoque en la experiencia del usuario, logrando un aumento del 85% en la tasa de conversión y reduciendo el abandono en un 40%.",
     image: "/modern-travel-interface.png",
@@ -69,15 +69,15 @@ export default function CaseStudies() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className={`text-3xl md:text-4xl font-bold ${isDark ? "text-white" : "text-blue-900"} mb-4`}>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Nuestros <GradientText>Casos de Éxito</GradientText>
           </h2>
-          <p className={`${isDark ? "text-gray-400" : "text-gray-600"} max-w-2xl mx-auto`}>
+          <p className="text-gray-400 max-w-2xl mx-auto">
             Descubre cómo hemos ayudado a empresas como la tuya a alcanzar sus objetivos de marketing y crecimiento.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           {caseStudies.map((study, index) => (
             <motion.div
               key={index}
@@ -87,16 +87,14 @@ export default function CaseStudies() {
               viewport={{ once: true }}
               className="h-full"
             >
-              <Card
-                className={`${
-                  isDark ? "bg-black/50 border-white/10" : "bg-white/80 border-gray-200"
-                } backdrop-blur-sm h-full flex flex-col hover:border-${study.color}-500/50 transition-all`}
-              >
-                <div className="relative">
-                  <img
+              <div className="bg-black/50 border border-white/10 backdrop-blur-sm h-full flex flex-col rounded-lg overflow-hidden">
+                <div className="relative h-48 w-full">
+                  <Image
                     src={study.image || "/placeholder.svg"}
                     alt={study.title}
-                    className="w-full h-48 object-cover rounded-t-lg"
+                    fill
+                    className="object-cover"
+                    priority={index === 0}
                   />
                   <div
                     className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-semibold bg-${study.color}-500/80 text-white`}
@@ -104,33 +102,24 @@ export default function CaseStudies() {
                     {study.tag}
                   </div>
                 </div>
-                <CardHeader>
-                  <CardTitle className={isDark ? "text-white" : "text-blue-900"}>{study.title}</CardTitle>
-                  <CardDescription className={isDark ? "text-gray-400" : "text-gray-600"}>
-                    Cliente: {study.client}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  <p className={`${isDark ? "text-gray-300" : "text-gray-700"} mb-4`}>{study.description}</p>
-                  <div className="grid grid-cols-3 gap-2 mt-4">
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-white mb-1">{study.title}</h3>
+                  <p className="text-gray-400 text-sm mb-4">{study.client}</p>
+                  <p className="text-gray-300 mb-6">{study.description}</p>
+                  <div className="grid grid-cols-3 gap-2 mb-6">
                     {study.metrics.map((metric, i) => (
                       <div key={i} className="text-center">
                         <p className={`text-${study.color}-500 font-bold text-xl`}>{metric.value}</p>
-                        <p className={`${isDark ? "text-gray-400" : "text-gray-600"} text-xs`}>{metric.label}</p>
+                        <p className="text-gray-400 text-xs">{metric.label}</p>
                       </div>
                     ))}
                   </div>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    variant="ghost"
-                    className={`w-full ${isDark ? "text-white hover:text-blue-400" : "text-blue-900 hover:text-blue-700"} group`}
-                  >
+                  <Button variant="ghost" className="w-full text-white hover:text-blue-400 group">
                     Ver caso completo
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Button>
-                </CardFooter>
-              </Card>
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>
