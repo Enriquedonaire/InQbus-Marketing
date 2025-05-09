@@ -1,6 +1,6 @@
 # InQbus Marketing
 
-<img src="public/inqubus-logo.png" alt="InQbus Marketing" width="200"/>
+<img src="public/inqubus-logo.png" alt="InQbus Marketing" width="100"/>
 
 ## 🚀 Descripción
 
