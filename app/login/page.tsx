@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useTheme } from "@/components/theme-provider"
 import NetworkParticles from "@/components/network-particles"
 import { Loader2 } from "lucide-react"
@@ -12,36 +12,48 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const { theme } = useTheme()
   const isDark = theme === "dark"
+
+  // Verificar si ya hay una sesión activa
+  useEffect(() => {
+    try {
+      // Limpiar cualquier sesión existente al cargar la página de login
+      localStorage.removeItem("inqubus_auth")
+    } catch (e) {
+      console.error("Error al limpiar localStorage:", e)
+    }
+  }, [])
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError("")
+    setLoading(true)
 
     // Validación simple
     if (
       (username === "Enrique Andres Donaire" && password === "<Q2N41R3/98-40-31/>") ||
       (username === "Recruiter" && password === "Recruiter-Gest-2025")
     ) {
-      // Activar el spinner de carga
-      setLoading(true)
-
       // Guardar el rol del usuario en localStorage
       const role = username === "Enrique Andres Donaire" ? "admin" : "recruiter"
       try {
         localStorage.setItem("inqubus_auth", JSON.stringify({ username, role }))
+        setIsAuthenticated(true)
+
+        // Usar window.location.href para una redirección más directa
+        setTimeout(() => {
+          window.location.href = "/"
+        }, 1000)
       } catch (e) {
         console.error("Error al guardar en localStorage:", e)
+        setError("Error al iniciar sesión. Por favor, intente nuevamente.")
+        setLoading(false)
       }
-
-      // Pequeño retraso para asegurar que el estado de loading se actualice
-      setTimeout(() => {
-        // Redirigir a la página principal para ambos tipos de usuarios
-        window.location.href = "/"
-      }, 500)
     } else {
       setError("Credenciales incorrectas")
+      setLoading(false)
     }
   }
 
@@ -52,6 +64,7 @@ export default function LoginPage() {
         <div className="flex flex-col items-center space-y-4">
           <Loader2 className="h-12 w-12 text-blue-500 animate-spin" />
           <p className="text-white text-lg">Iniciando sesión...</p>
+          {isAuthenticated && <p className="text-gray-400 text-sm">Redirigiendo a la página principal...</p>}
         </div>
       </div>
     )

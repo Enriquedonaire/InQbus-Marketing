@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Hero from "@/components/hero"
 import Navbar from "@/components/navbar"
 import Services from "@/components/services"
@@ -16,10 +17,23 @@ import LayeredParticlesEffect from "@/components/layered-particles-effect"
 import BackToTop from "@/components/back-to-top"
 import VignetteOverlay from "@/components/vignette-overlay"
 import SubtleLightEffect from "@/components/subtle-light-effect"
+import AuthNavbar from "@/components/auth-navbar"
 
 export default function Home() {
   const { theme } = useTheme()
   const isDark = theme === "dark"
+  const [user, setUser] = useState<{ username: string; role: string } | null>(null)
+
+  useEffect(() => {
+    try {
+      const authData = localStorage.getItem("inqubus_auth")
+      if (authData) {
+        setUser(JSON.parse(authData))
+      }
+    } catch (e) {
+      console.error("Error al leer localStorage:", e)
+    }
+  }, [])
 
   return (
     <main
@@ -56,6 +70,9 @@ export default function Home() {
       <div className="relative z-20">
         {/* Navbar - z-index más alto (50) */}
         <Navbar />
+
+        {/* Barra de autenticación si el usuario está logueado */}
+        {user && <AuthNavbar />}
 
         <div id="home">
           <Hero />

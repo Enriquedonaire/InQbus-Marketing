@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useTheme } from "@/components/theme-provider"
+import { LogOut, User, Shield } from "lucide-react"
 
 export default function AuthNavbar() {
   const [user, setUser] = useState<{ username: string; role: string } | null>(null)
@@ -16,7 +17,7 @@ export default function AuthNavbar() {
         setUser(JSON.parse(authData))
       }
     } catch (e) {
-      console.error("Error al leer de localStorage:", e)
+      console.error("Error al leer localStorage:", e)
     }
   }, [])
 
@@ -33,21 +34,30 @@ export default function AuthNavbar() {
 
   return (
     <div
-      className={`fixed top-0 right-0 p-4 z-50 flex items-center space-x-4 ${isDark ? "text-white" : "text-gray-900"}`}
+      className={`fixed top-0 right-0 p-4 z-50 flex items-center space-x-4 bg-black/50 backdrop-blur-sm rounded-bl-lg ${
+        isDark ? "text-white" : "text-gray-900"
+      }`}
     >
-      <span className="text-sm">Hola, {user.username}</span>
+      <div className="flex items-center">
+        <User className="h-4 w-4 mr-2 text-gray-400" />
+        <span className="text-sm text-gray-300">{user.username}</span>
+        {user.role === "admin" && (
+          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-900/50 text-blue-200">
+            <Shield className="h-3 w-3 mr-1" />
+            Admin
+          </span>
+        )}
+      </div>
+
       {user.role === "admin" && (
-        <Link href="/admin" className="text-sm text-blue-600 hover:text-blue-500">
+        <Link href="/admin" className="text-sm text-blue-400 hover:text-blue-300 flex items-center">
           Panel Admin
         </Link>
       )}
-      <button
-        onClick={handleLogout}
-        className={`px-3 py-1 text-sm rounded border ${
-          isDark ? "border-gray-700 hover:bg-gray-800" : "border-gray-300 hover:bg-gray-100"
-        }`}
-      >
-        Cerrar Sesión
+
+      <button onClick={handleLogout} className="flex items-center text-sm text-gray-300 hover:text-white">
+        <LogOut className="h-4 w-4 mr-1" />
+        Salir
       </button>
     </div>
   )
