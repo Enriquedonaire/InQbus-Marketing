@@ -25,13 +25,36 @@ export default function Home() {
   const [user, setUser] = useState<{ username: string; role: string } | null>(null)
 
   useEffect(() => {
-    try {
-      const authData = localStorage.getItem("inqubus_auth")
-      if (authData) {
-        setUser(JSON.parse(authData))
+    // Procesar parámetros de autenticación de la URL
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search)
+      const isAuth = params.get("auth")
+      const username = params.get("user")
+      const role = params.get("role")
+
+      if (isAuth === "true" && username && role) {
+        // Guardar información de autenticación en localStorage
+        const userData = { username, role }
+        try {
+          localStorage.setItem("inqubus_auth", JSON.stringify(userData))
+          setUser(userData)
+
+          // Limpiar los parámetros de la URL sin recargar la página
+          window.history.replaceState({}, document.title, window.location.pathname)
+        } catch (e) {
+          console.error("Error al guardar en localStorage:", e)
+        }
+      } else {
+        // Intentar obtener información de autenticación de localStorage
+        try {
+          const authData = localStorage.getItem("inqubus_auth")
+          if (authData) {
+            setUser(JSON.parse(authData))
+          }
+        } catch (e) {
+          console.error("Error al leer localStorage:", e)
+        }
       }
-    } catch (e) {
-      console.error("Error al leer localStorage:", e)
     }
   }, [])
 

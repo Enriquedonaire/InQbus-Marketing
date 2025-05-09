@@ -2,58 +2,62 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useTheme } from "@/components/theme-provider"
 import NetworkParticles from "@/components/network-particles"
 import { Loader2 } from "lucide-react"
+import { useSearchParams } from "next/navigation"
+import { setCookie } from "cookies-next"
 
 export default function LoginPage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const { theme } = useTheme()
   const isDark = theme === "dark"
-
-  // Verificar si ya hay una sesión activa
-  useEffect(() => {
-    try {
-      // Limpiar cualquier sesión existente al cargar la página de login
-      localStorage.removeItem("inqubus_auth")
-    } catch (e) {
-      console.error("Error al limpiar localStorage:", e)
-    }
-  }, [])
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get("redirect") || "/"
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError("")
-    setLoading(true)
 
     // Validación simple
     if (
       (username === "Enrique Andres Donaire" && password === "<Q2N41R3/98-40-31/>") ||
       (username === "Recruiter" && password === "Recruiter-Gest-2025")
     ) {
-      // Guardar el rol del usuario en localStorage
-      const role = username === "Enrique Andres Donaire" ? "admin" : "recruiter"
-      try {
-        localStorage.setItem("inqubus_auth", JSON.stringify({ username, role }))
-        setIsAuthenticated(true)
+      // Activar el spinner de carga
+      setLoading(true)
 
-        // Usar window.location.href para una redirección más directa
-        setTimeout(() => {
-          window.location.href = "/"
-        }, 1000)
-      } catch (e) {
-        console.error("Error al guardar en localStorage:", e)
-        setError("Error al iniciar sesión. Por favor, intente nuevamente.")
-        setLoading(false)
+      // Determinar el rol
+      const role = username === "Enrique Andres Donaire" ? "admin" : "recruiter"
+
+      // Crear objeto de usuario
+      const userData = {
+        username,
+        role,
       }
+
+      // Guardar en localStorage y cookies para persistencia
+      localStorage.setItem("inqubus_auth", JSON.stringify(userData))
+      setCookie("inqubus_auth", JSON.stringify(userData), {
+        maxAge: 60 * 60 * 24 * 7, // 7 días
+        path: "/",
+      })
+
+      // Redirigir después de un breve retraso
+      setTimeout(() => {
+        // Redirigir con parámetros de autenticación para mostrar la notificación
+        const redirectUrl = new URL(redirect, window.location.origin)
+        redirectUrl.searchParams.set("auth", "true")
+        redirectUrl.searchParams.set("user", username)
+        redirectUrl.searchParams.set("role", role)
+        window.location.href = redirectUrl.toString()
+      }, 1500)
     } else {
       setError("Credenciales incorrectas")
-      setLoading(false)
     }
   }
 
@@ -64,7 +68,7 @@ export default function LoginPage() {
         <div className="flex flex-col items-center space-y-4">
           <Loader2 className="h-12 w-12 text-blue-500 animate-spin" />
           <p className="text-white text-lg">Iniciando sesión...</p>
-          {isAuthenticated && <p className="text-gray-400 text-sm">Redirigiendo a la página principal...</p>}
+          <p className="text-gray-400 text-sm">Redirigiendo...</p>
         </div>
       </div>
     )

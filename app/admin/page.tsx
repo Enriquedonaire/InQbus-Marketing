@@ -3,109 +3,226 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useTheme } from "@/components/theme-provider"
-import AuthNavbar from "@/components/auth-navbar"
+import { getSupabaseClient } from "@/lib/supabase/client"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Loader2, Search, RefreshCw } from "lucide-react"
 
 export default function AdminPage() {
-  const [user, setUser] = useState<{ username: string; role: string } | null>(null)
+  const [activeTab, setActiveTab] = useState("contacts")
+  const [data, setData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [filteredData, setFilteredData] = useState<any[]>([])
   const { theme } = useTheme()
   const isDark = theme === "dark"
 
   useEffect(() => {
-    try {
-      const authData = localStorage.getItem("inqubus_auth")
-      if (authData) {
-        const userData = JSON.parse(authData)
-        setUser(userData)
+    fetchData()
+  }, [activeTab])
 
-        // Redirigir si no es admin
-        if (userData.role !== "admin") {
-          window.location.href = "/"
-        }
-      } else {
-        // Redirigir si no hay datos de autenticación
-        window.location.href = "/login"
+  useEffect(() => {
+    if (data.length > 0) {
+      filterData()
+    } else {
+      setFilteredData([])
+    }
+  }, [searchTerm, data])
+
+  async function fetchData() {
+    try {
+      setLoading(true)
+      setError(null)
+
+      const supabase = getSupabaseClient()
+      let result
+
+      switch (activeTab) {
+        case "contacts":
+          result = await supabase.from("contacts").select("*").order("created_at", { ascending: false })
+          break
+        case "audit_requests":
+          result = await supabase.from("audit_requests").select("*").order("created_at", { ascending: false })
+          break
+        case "case_studies":
+          result = await supabase.from("case_studies").select("*").order("created_at", { ascending: false })
+          break
+        case "services":
+          result = await supabase.from("services").select("*").order("created_at", { ascending: false })
+          break
+        case "pricing_plans":
+          result = await supabase.from("pricing_plans").select("*").order("created_at", { ascending: false })
+          break
+        case "todos":
+          result = await supabase.from("todos").select("*").order("created_at", { ascending: false })
+          break
+        default:
+          result = { data: [], error: null }
       }
-    } catch (e) {
-      console.error("Error al verificar autenticación:", e)
-      window.location.href = "/login"
+
+      if (result.error) {
+        console.error(`Error al cargar datos de ${activeTab}:`, result.error)
+        setError(result.error.message || `Error al cargar datos de ${activeTab}`)
+        setData([])
+      } else {
+        console.log(`Datos cargados de ${activeTab}:`, result.data)
+        setData(result.data || [])
+      }
+    } catch (err: any) {
+      console.error(`Error al cargar datos de ${activeTab}:`, err)
+      setError(err.message || `Error al cargar datos de ${activeTab}`)
+      setData([])
     } finally {
       setLoading(false)
     }
-  }, [])
-
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Cargando...</div>
   }
 
-  if (!user || user.role !== "admin") {
-    return null // No debería llegar aquí debido a la redirección
+  function filterData() {
+    if (!searchTerm.trim()) {
+      setFilteredData(data)
+      return
+    }
+
+    const searchTermLower = searchTerm.toLowerCase()
+    const filtered = data.filter((item) => {
+      return Object.values(item).some((value) => {
+        if (value === null || value === undefined) return false
+        if (typeof value === "object") {
+          return JSON.stringify(value).toLowerCase().includes(searchTermLower)
+        }
+        return String(value).toLowerCase().includes(searchTermLower)
+      })
+    })
+
+    setFilteredData(filtered)
+  }
+
+  function formatCellValue(value: any): string {
+    if (value === null || value === undefined) return ""
+
+    if (typeof value === "object") {
+      return JSON.stringify(value)
+    }
+
+    if (typeof value === "boolean") {
+      return value ? "Sí" : "No"
+    }
+
+    if (typeof value === "string" && value.length > 100) {
+      return value.substring(0, 100) + "..."
+    }
+
+    return String(value)
+  }
+
+  function formatDate(dateString: string): string {
+    try {
+      return new Date(dateString).toLocaleString("es-ES", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    } catch (e) {
+      return dateString
+    }
   }
 
   return (
     <div className={`min-h-screen ${isDark ? "bg-black text-white" : "bg-gray-50 text-gray-900"}`}>
-      <AuthNavbar />
-
-      <header className={`py-4 border-b ${isDark ? "border-gray-800" : "border-gray-200"}`}>
-        <div className="container mx-auto px-4">
-          <h1 className="text-xl font-bold">
-            In<span className="text-blue-600">Q</span>bus Admin
-          </h1>
-        </div>
-      </header>
-
       <main className="container mx-auto px-4 py-8">
-        <h2 className="text-2xl font-bold mb-6">Panel de Administración</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className={`p-6 rounded-lg ${isDark ? "bg-gray-900" : "bg-white shadow"}`}>
-            <h3 className="text-lg font-medium mb-4">Estadísticas</h3>
-            <ul className="space-y-2">
-              <li className="flex justify-between">
-                <span className={isDark ? "text-gray-400" : "text-gray-500"}>Visitantes</span>
-                <span>1,234</span>
-              </li>
-              <li className="flex justify-between">
-                <span className={isDark ? "text-gray-400" : "text-gray-500"}>Solicitudes</span>
-                <span>56</span>
-              </li>
-              <li className="flex justify-between">
-                <span className={isDark ? "text-gray-400" : "text-gray-500"}>Conversiones</span>
-                <span>12%</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className={`p-6 rounded-lg ${isDark ? "bg-gray-900" : "bg-white shadow"}`}>
-            <h3 className="text-lg font-medium mb-4">Solicitudes Recientes</h3>
-            <ul className="space-y-2">
-              <li>Juan Pérez - Auditoría SEO</li>
-              <li>María García - Campaña de Redes</li>
-              <li>Carlos López - Rediseño Web</li>
-            </ul>
-          </div>
-
-          <div className={`p-6 rounded-lg ${isDark ? "bg-gray-900" : "bg-white shadow"}`}>
-            <h3 className="text-lg font-medium mb-4">Acciones Rápidas</h3>
-            <div className="space-y-2">
-              <button className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded">
-                Ver Solicitudes
-              </button>
-              <button className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded">
-                Gestionar Casos
-              </button>
-              <button className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded">
-                Configuración
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-8">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold">Panel de Administración</h2>
           <Link href="/" className="text-blue-600 hover:underline">
             ← Volver al sitio principal
           </Link>
         </div>
+
+        <Card className="w-full">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-xl">Gestión de Datos</CardTitle>
+            <div className="flex items-center space-x-2">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
+                <Input
+                  type="search"
+                  placeholder="Buscar..."
+                  className="pl-8 w-[250px]"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <Button variant="outline" size="icon" onClick={fetchData}>
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="mb-6">
+                <TabsTrigger value="contacts">Contactos</TabsTrigger>
+                <TabsTrigger value="audit_requests">Auditorías</TabsTrigger>
+                <TabsTrigger value="case_studies">Casos de Éxito</TabsTrigger>
+                <TabsTrigger value="services">Servicios</TabsTrigger>
+                <TabsTrigger value="pricing_plans">Planes</TabsTrigger>
+                <TabsTrigger value="todos">Tareas</TabsTrigger>
+              </TabsList>
+
+              {loading ? (
+                <div className="flex justify-center items-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : error ? (
+                <div className="text-center py-8 text-red-500">{error}</div>
+              ) : filteredData.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  {data.length === 0
+                    ? "No hay datos disponibles en esta tabla"
+                    : "No se encontraron resultados para la búsqueda"}
+                </div>
+              ) : (
+                <div className="rounded-md border overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          {Object.keys(filteredData[0])
+                            .filter((key) => !key.includes("password"))
+                            .map((column) => (
+                              <TableHead key={column} className="whitespace-nowrap">
+                                {column.replace(/_/g, " ")}
+                              </TableHead>
+                            ))}
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredData.map((row, rowIndex) => (
+                          <TableRow key={rowIndex}>
+                            {Object.entries(row)
+                              .filter(([key]) => !key.includes("password"))
+                              .map(([column, value]) => (
+                                <TableCell key={column} className="max-w-[300px] truncate">
+                                  {column.includes("date") || column.includes("_at")
+                                    ? formatDate(value as string)
+                                    : formatCellValue(value)}
+                                </TableCell>
+                              ))}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              )}
+              <div className="text-sm text-gray-500 mt-4">{filteredData.length} registros encontrados</div>
+            </Tabs>
+          </CardContent>
+        </Card>
       </main>
     </div>
   )

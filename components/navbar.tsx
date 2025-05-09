@@ -6,7 +6,7 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import type React from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { ThemeSwitcher } from "@/components/theme-switcher"
 import { useTheme } from "@/components/theme-provider"
 
@@ -14,10 +14,74 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState("home")
   const [scrolled, setScrolled] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [showWelcome, setShowWelcome] = useState(false)
+  const [welcomeUser, setWelcomeUser] = useState("")
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const isHomePage = pathname === "/"
   const { theme } = useTheme()
   const isDark = theme === "dark"
+
+  // Check for auth in URL parameters
+  useEffect(() => {
+    const authParam = searchParams.get("auth")
+    const userParam = searchParams.get("user")
+    const roleParam = searchParams.get("role")
+
+    if (authParam === "true" && userParam) {
+      // Store user info in localStorage
+      const userData = {
+        username: userParam,
+        role: roleParam || "user",
+      }
+      localStorage.setItem("inqubus_auth", JSON.stringify(userData))
+
+      // Set authentication state
+      setIsAuthenticated(true)
+      setIsAdmin(roleParam === "admin")
+
+      // Show welcome message
+      setWelcomeUser(userParam)
+      setShowWelcome(true)
+
+      // Hide welcome message after 3 seconds
+      setTimeout(() => {
+        setShowWelcome(false)
+      }, 3000)
+
+      // Clean URL parameters
+      const url = new URL(window.location.href)
+      url.searchParams.delete("auth")
+      url.searchParams.delete("user")
+      url.searchParams.delete("role")
+      window.history.replaceState({}, "", url.toString())
+    }
+  }, [searchParams])
+
+  // Check localStorage for user on load
+  useEffect(() => {
+    const storedUser = localStorage.getItem("inqubus_auth")
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser)
+        setIsAuthenticated(true)
+        setIsAdmin(userData.role === "admin")
+      } catch (error) {
+        console.error("Error parsing stored user:", error)
+      }
+    }
+  }, [])
+
+  // Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem("inqubus_auth")
+    document.cookie = "inqubus_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+    setIsAuthenticated(false)
+    setIsAdmin(false)
+    window.location.href = "/"
+  }
 
   // Handle scroll to section
   const scrollToSection = (sectionId: string) => {
@@ -74,69 +138,24 @@ export default function Navbar() {
   const textColorClass = isDark ? "text-white" : "text-blue-900"
 
   return (
-    <nav
-      className={`flex items-center justify-between px-6 py-4 fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navbarBgClass}`}
-    >
-      <Link href="/" className="flex items-center space-x-2">
-        <div className={`text-2xl font-bold ${textColorClass}`}>
-          In<span className="text-blue-500">Q</span>bus
+    <>
+      {/* Welcome notification */}
+      {showWelcome && (
+        <div className="fixed top-20 right-4 z-50 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg">
+          <p>Bienvenido, {welcomeUser}!</p>
         </div>
-      </Link>
+      )}
 
-      <div className="hidden md:flex items-center space-x-8">
-        <NavLink href="#home" active={activeSection === "home"} onClick={() => scrollToSection("home")}>
-          Home
-        </NavLink>
-        <NavLink href="#services" active={activeSection === "services"} onClick={() => scrollToSection("services")}>
-          Servicios
-        </NavLink>
-        <NavLink href="#features" active={activeSection === "features"} onClick={() => scrollToSection("features")}>
-          Por Qué Nosotros
-        </NavLink>
-        <NavLink href="#pricing" active={activeSection === "pricing"} onClick={() => scrollToSection("pricing")}>
-          Paquetes
-        </NavLink>
-      </div>
-
-      <div className="hidden md:flex items-center space-x-4">
-        <ThemeSwitcher />
-        <Link href="/contact">
-          <Button
-            variant="ghost"
-            className={`${isDark ? "text-white border border-blue-950 hover:text-blue-400" : "text-blue-900 border border-blue-200 hover:text-blue-600"} hover:scale-110`}
-          >
-            Contacto
-          </Button>
+      <nav
+        className={`flex items-center justify-between px-6 py-4 fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navbarBgClass}`}
+      >
+        <Link href="/" className="flex items-center space-x-2">
+          <div className={`text-2xl font-bold ${textColorClass}`}>
+            In<span className="text-blue-500">Q</span>bus
+          </div>
         </Link>
-        <Link href="/get-started">
-          <Button variant="glow">Comenzar</Button>
-        </Link>
-      </div>
 
-      <div className="md:hidden flex items-center space-x-4">
-        <ThemeSwitcher />
-        <Button
-          variant="ghost"
-          size="icon"
-          className={isDark ? "text-white" : "text-blue-900"}
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </Button>
-      </div>
-
-      {/* Mobile menu */}
-      {isMenuOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className={`absolute top-full left-0 right-0 ${
-            isDark
-              ? "bg-black/90 backdrop-blur-md border-b border-white/10"
-              : "bg-white/90 backdrop-blur-md border-b border-black/10"
-          } p-6 flex flex-col space-y-4 md:hidden z-50`}
-        >
+        <div className="hidden md:flex items-center space-x-8">
           <NavLink href="#home" active={activeSection === "home"} onClick={() => scrollToSection("home")}>
             Home
           </NavLink>
@@ -149,26 +168,159 @@ export default function Navbar() {
           <NavLink href="#pricing" active={activeSection === "pricing"} onClick={() => scrollToSection("pricing")}>
             Paquetes
           </NavLink>
-          <div className="pt-4 flex flex-col space-y-2">
-            <Link href="/contact">
+
+          {/* Admin links - only show for admin users */}
+          {isAdmin && (
+            <>
+              <NavLink href="/admin" active={pathname === "/admin"} onClick={() => (window.location.href = "/admin")}>
+                Admin
+              </NavLink>
+              <NavLink
+                href="/dashboard"
+                active={pathname.startsWith("/dashboard")}
+                onClick={() => (window.location.href = "/dashboard")}
+              >
+                Dashboard
+              </NavLink>
+            </>
+          )}
+        </div>
+
+        <div className="hidden md:flex items-center space-x-4">
+          <ThemeSwitcher />
+          <Link href="/contact">
+            <Button
+              variant="ghost"
+              className={`${isDark ? "text-white border border-blue-950 hover:text-blue-400" : "text-blue-900 border border-blue-200 hover:text-blue-600"} hover:scale-110`}
+            >
+              Contacto
+            </Button>
+          </Link>
+          <Link href="/get-started">
+            <Button variant="glow">Comenzar</Button>
+          </Link>
+
+          {isAuthenticated ? (
+            <Button
+              variant="ghost"
+              onClick={handleLogout}
+              className={`${isDark ? "text-white border border-blue-950 hover:text-blue-400" : "text-blue-900 border border-blue-200 hover:text-blue-600"} hover:scale-110`}
+            >
+              Cerrar sesión
+            </Button>
+          ) : (
+            <Link href="/login">
               <Button
                 variant="ghost"
-                className={`justify-start ${
-                  isDark
-                    ? "text-white border-1 border-blue-950 hover:text-blue-400"
-                    : "text-blue-900 border-1 border-blue-200 hover:text-blue-600"
-                }`}
+                className={`${isDark ? "text-white border border-blue-950 hover:text-blue-400" : "text-blue-900 border border-blue-200 hover:text-blue-600"} hover:scale-110`}
               >
-                Contacto
+                Iniciar sesión
               </Button>
             </Link>
-            <Link href="/get-started">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white">Comenzar</Button>
-            </Link>
-          </div>
-        </motion.div>
-      )}
-    </nav>
+          )}
+        </div>
+
+        <div className="md:hidden flex items-center space-x-4">
+          <ThemeSwitcher />
+          <Button
+            variant="ghost"
+            size="icon"
+            className={isDark ? "text-white" : "text-blue-900"}
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </Button>
+        </div>
+
+        {/* Mobile menu */}
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={`absolute top-full left-0 right-0 ${
+              isDark
+                ? "bg-black/90 backdrop-blur-md border-b border-white/10"
+                : "bg-white/90 backdrop-blur-md border-b border-black/10"
+            } p-6 flex flex-col space-y-4 md:hidden z-50`}
+          >
+            <NavLink href="#home" active={activeSection === "home"} onClick={() => scrollToSection("home")}>
+              Home
+            </NavLink>
+            <NavLink href="#services" active={activeSection === "services"} onClick={() => scrollToSection("services")}>
+              Servicios
+            </NavLink>
+            <NavLink href="#features" active={activeSection === "features"} onClick={() => scrollToSection("features")}>
+              Por Qué Nosotros
+            </NavLink>
+            <NavLink href="#pricing" active={activeSection === "pricing"} onClick={() => scrollToSection("pricing")}>
+              Paquetes
+            </NavLink>
+
+            {/* Admin links - only show for admin users */}
+            {isAdmin && (
+              <>
+                <NavLink href="/admin" active={pathname === "/admin"} onClick={() => (window.location.href = "/admin")}>
+                  Admin
+                </NavLink>
+                <NavLink
+                  href="/dashboard"
+                  active={pathname.startsWith("/dashboard")}
+                  onClick={() => (window.location.href = "/dashboard")}
+                >
+                  Dashboard
+                </NavLink>
+              </>
+            )}
+
+            <div className="pt-4 flex flex-col space-y-2">
+              <Link href="/contact">
+                <Button
+                  variant="ghost"
+                  className={`justify-start ${
+                    isDark
+                      ? "text-white border-1 border-blue-950 hover:text-blue-400"
+                      : "text-blue-900 border-1 border-blue-200 hover:text-blue-600"
+                  }`}
+                >
+                  Contacto
+                </Button>
+              </Link>
+              <Link href="/get-started">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white">Comenzar</Button>
+              </Link>
+
+              {isAuthenticated ? (
+                <Button
+                  variant="ghost"
+                  onClick={handleLogout}
+                  className={`justify-start ${
+                    isDark
+                      ? "text-white border-1 border-blue-950 hover:text-blue-400"
+                      : "text-blue-900 border-1 border-blue-200 hover:text-blue-600"
+                  }`}
+                >
+                  Cerrar sesión
+                </Button>
+              ) : (
+                <Link href="/login">
+                  <Button
+                    variant="ghost"
+                    className={`justify-start ${
+                      isDark
+                        ? "text-white border-1 border-blue-950 hover:text-blue-400"
+                        : "text-blue-900 border-1 border-blue-200 hover:text-blue-600"
+                    }`}
+                  >
+                    Iniciar sesión
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </nav>
+    </>
   )
 }
 

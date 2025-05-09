@@ -1,7 +1,6 @@
 import type React from "react"
 import "@/app/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import { AuthProvider } from "@/lib/context/auth-context"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,7 +11,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <ThemeProvider defaultTheme="dark" storageKey="inqubus-theme">
-          <AuthProvider>{children}</AuthProvider>
+          {children}
         </ThemeProvider>
       </body>
     </html>
