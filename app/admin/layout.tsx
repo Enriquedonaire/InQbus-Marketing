@@ -1,11 +1,12 @@
 import type React from "react"
 import type { Metadata } from "next"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Admin - Inqubus",
-  description: "Panel de administración de la base de datos",
+  title: "Admin - InQbus Marketing",
+  description: "Panel de administración de InQbus Marketing",
 }
 
 export default function AdminLayout({
@@ -14,14 +15,16 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container flex h-16 items-center px-4">
-          <Link href="/" className="flex items-center text-sm font-medium mr-4">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver al sitio
-          </Link>
-          <h1 className="text-lg font-semibold">Panel de Administración</h1>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <header className="border-b bg-white dark:bg-gray-800">
+        <div className="container mx-auto py-4 px-4 flex justify-between items-center">
+          <h1 className="text-xl font-bold">InQbus Admin</h1>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Volver al sitio
+            </Link>
+          </Button>
         </div>
       </header>
       <main>{children}</main>

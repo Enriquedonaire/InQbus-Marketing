@@ -1,6 +1,194 @@
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
+import { createClient } from "@supabase/supabase-js"
+
+// Crear cliente de Supabase
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+
+export async function GET() {
+  try {
+    // Verificar si ya hay datos en las tablas
+    const { count: servicesCount } = await supabaseAdmin.from("services").select("*", { count: "exact", head: true })
+
+    const { count: pricingCount } = await supabaseAdmin
+      .from("pricing_plans")
+      .select("*", { count: "exact", head: true })
+
+    const { count: caseStudiesCount } = await supabaseAdmin
+      .from("case_studies")
+      .select("*", { count: "exact", head: true })
+
+    // Insertar servicios si no hay ninguno
+    if (!servicesCount) {
+      await supabaseAdmin.from("services").insert([
+        {
+          title: "Estrategia de Marketing Digital",
+          description:
+            "Desarrollamos estrategias personalizadas para aumentar tu presencia online y alcanzar tus objetivos de negocio.",
+          icon: "strategy",
+          is_active: true,
+          display_order: 1,
+        },
+        {
+          title: "SEO y Posicionamiento",
+          description:
+            "Optimizamos tu sitio web para mejorar su visibilidad en los motores de búsqueda y atraer tráfico cualificado.",
+          icon: "search",
+          is_active: true,
+          display_order: 2,
+        },
+        {
+          title: "Marketing de Contenidos",
+          description: "Creamos contenido relevante y valioso para atraer y retener a tu audiencia objetivo.",
+          icon: "file-text",
+          is_active: true,
+          display_order: 3,
+        },
+        {
+          title: "Publicidad Digital",
+          description:
+            "Gestionamos campañas publicitarias en Google Ads, Facebook Ads y otras plataformas para maximizar tu ROI.",
+          icon: "megaphone",
+          is_active: true,
+          display_order: 4,
+        },
+        {
+          title: "Redes Sociales",
+          description:
+            "Desarrollamos y ejecutamos estrategias de redes sociales para aumentar tu engagement y construir comunidad.",
+          icon: "share-2",
+          is_active: true,
+          display_order: 5,
+        },
+        {
+          title: "Email Marketing",
+          description: "Diseñamos campañas de email marketing efectivas para nutrir leads y convertir clientes.",
+          icon: "mail",
+          is_active: true,
+          display_order: 6,
+        },
+      ])
+    }
+
+    // Insertar planes de precios si no hay ninguno
+    if (!pricingCount) {
+      await supabaseAdmin.from("pricing_plans").insert([
+        {
+          name: "Básico",
+          price: "499€",
+          period: "mes",
+          description: "Ideal para pequeñas empresas que quieren empezar a crecer online",
+          features: [
+            "Estrategia de marketing digital",
+            "Gestión de 2 redes sociales",
+            "Optimización SEO básica",
+            "Informe mensual de resultados",
+          ],
+          button_text: "Comenzar",
+          is_popular: false,
+          display_order: 1,
+        },
+        {
+          name: "Profesional",
+          price: "999€",
+          period: "mes",
+          description: "Perfecto para empresas en crecimiento que buscan expandir su presencia online",
+          features: [
+            "Todo lo del plan Básico",
+            "Gestión de 4 redes sociales",
+            "SEO avanzado",
+            "Campañas de Google Ads",
+            "Email marketing",
+            "Soporte prioritario",
+          ],
+          button_text: "Comenzar",
+          is_popular: true,
+          display_order: 2,
+        },
+        {
+          name: "Empresarial",
+          price: "1999€",
+          period: "mes",
+          description: "Solución completa para empresas que necesitan una estrategia integral",
+          features: [
+            "Todo lo del plan Profesional",
+            "Gestión de todas las redes sociales",
+            "Estrategia de contenidos avanzada",
+            "Campañas de Facebook e Instagram Ads",
+            "Análisis de competencia",
+            "Consultor dedicado",
+          ],
+          button_text: "Contactar",
+          is_popular: false,
+          display_order: 3,
+        },
+      ])
+    }
+
+    // Insertar casos de éxito si no hay ninguno
+    if (!caseStudiesCount) {
+      await supabaseAdmin.from("case_studies").insert([
+        {
+          title: "Tienda Online de Moda",
+          client: "FashionStore",
+          description:
+            "Aumentamos las ventas en un 150% en 6 meses mediante una estrategia combinada de SEO, publicidad en redes sociales y email marketing.",
+          image_url: "/stylish-online-storefront.png",
+          tag: "E-commerce",
+          color: "blue",
+          metrics: {
+            "Aumento de ventas": "150%",
+            "Tráfico orgánico": "+200%",
+            ROI: "320%",
+          },
+          is_featured: true,
+        },
+        {
+          title: "App de Viajes",
+          client: "TravelBuddy",
+          description:
+            "Lanzamiento exitoso de una aplicación de viajes con más de 50,000 descargas en el primer mes gracias a una estrategia de marketing digital integral.",
+          image_url: "/modern-travel-interface.png",
+          tag: "Aplicación Móvil",
+          color: "green",
+          metrics: {
+            Descargas: "50,000+",
+            Retención: "68%",
+            Conversión: "12.5%",
+          },
+          is_featured: true,
+        },
+        {
+          title: "Red Social Profesional",
+          client: "ProConnect",
+          description:
+            "Incrementamos la base de usuarios en un 200% y mejoramos la tasa de engagement mediante contenido de valor y campañas segmentadas.",
+          image_url: "/interconnected-social-network.png",
+          tag: "SaaS",
+          color: "purple",
+          metrics: {
+            "Crecimiento de usuarios": "200%",
+            Engagement: "+75%",
+            "Tiempo en plataforma": "+120%",
+          },
+          is_featured: true,
+        },
+      ])
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Datos iniciales insertados correctamente",
+    })
+  } catch (error: any) {
+    console.error("Error al insertar datos iniciales:", error)
+
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+  }
+}
 
 export async function POST() {
   try {

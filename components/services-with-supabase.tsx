@@ -1,46 +1,33 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import GradientText from "@/components/gradient-text"
-import { useTheme } from "@/components/theme-provider"
+import { useState, useEffect } from "react"
 import { getSupabaseClient } from "@/lib/supabase/client"
-import { BarChart, Globe, TrendingUp, Search, MessageSquare, PenTool, Loader2 } from "lucide-react"
-
-// Tipo para los servicios
-interface Service {
-  id: string
-  title: string
-  description: string
-  icon: string | null
-  is_active: boolean
-  display_order: number | null
-}
+import { ArrowRight, Loader2 } from "lucide-react"
+import * as LucideIcons from "lucide-react"
 
 export default function ServicesWithSupabase() {
-  const { theme } = useTheme()
-  const isDark = theme === "dark"
-  const [services, setServices] = useState<Service[]>([])
+  const [services, setServices] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchServices = async () => {
+    async function fetchServices() {
       try {
+        setLoading(true)
         const supabase = getSupabaseClient()
+
         const { data, error } = await supabase
           .from("services")
           .select("*")
-          .eq("is_active", true)
           .order("display_order", { ascending: true })
+          .eq("is_active", true)
 
         if (error) throw error
 
         setServices(data || [])
-      } catch (err) {
-        console.error("Error al cargar los servicios:", err)
-        setError("No se pudieron cargar los servicios. Por favor, inténtalo de nuevo más tarde.")
+      } catch (err: any) {
+        console.error("Error al cargar servicios:", err)
+        setError(err.message)
       } finally {
         setLoading(false)
       }
@@ -49,109 +36,45 @@ export default function ServicesWithSupabase() {
     fetchServices()
   }, [])
 
-  // Función para obtener el icono correcto basado en el nombre
-  const getIconComponent = (iconName: string | null) => {
-    switch (iconName) {
-      case "Search":
-        return <Search className="h-10 w-10 text-blue-500" />
-      case "TrendingUp":
-        return <TrendingUp className="h-10 w-10 text-blue-500" />
-      case "PenTool":
-        return <PenTool className="h-10 w-10 text-blue-500" />
-      case "Globe":
-        return <Globe className="h-10 w-10 text-blue-500" />
-      case "BarChart":
-        return <BarChart className="h-10 w-10 text-blue-500" />
-      case "MessageSquare":
-        return <MessageSquare className="h-10 w-10 text-blue-500" />
-      default:
-        return <Globe className="h-10 w-10 text-blue-500" />
-    }
+  // Función para obtener el icono dinámicamente
+  const getIcon = (iconName: string) => {
+    const Icon = (LucideIcons as any)[iconName.charAt(0).toUpperCase() + iconName.slice(1)] || LucideIcons.Sparkles
+    return <Icon className="h-10 w-10 mb-4 text-primary" />
   }
 
-  // Servicios de respaldo en caso de error o mientras se cargan
-  const fallbackServices = [
-    {
-      id: "1",
-      icon: "Search",
-      title: "SEO Optimization",
-      description: "Boost your online visibility with our data-driven SEO strategies that drive organic traffic.",
-      is_active: true,
-      display_order: 1,
-    },
-    {
-      id: "2",
-      icon: "TrendingUp",
-      title: "Digital Marketing",
-      description: "Comprehensive digital marketing campaigns that convert visitors into loyal customers.",
-      is_active: true,
-      display_order: 2,
-    },
-    {
-      id: "3",
-      icon: "PenTool",
-      title: "Content Creation",
-      description: "Engaging content that tells your brand story and resonates with your target audience.",
-      is_active: true,
-      display_order: 3,
-    },
-  ]
-
-  // Usar servicios de respaldo si hay un error o no hay datos
-  const displayServices = services.length > 0 ? services : fallbackServices
-
   return (
-    <section className="py-20">
-      <div className="container mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <h2 className={`text-3xl md:text-4xl font-bold ${isDark ? "text-white" : "text-blue-900"} mb-4`}>
-            Our <GradientText>Marketing Services</GradientText>
-          </h2>
-          <p className={`${isDark ? "text-gray-400" : "text-gray-600"} max-w-2xl mx-auto`}>
-            Comprehensive marketing solutions tailored to help your business grow and succeed in today's competitive
-            landscape.
+    <section className="py-20 px-4 md:px-8">
+      <div className="container mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Nuestros Servicios</h2>
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+            Ofrecemos soluciones integrales de marketing digital para ayudar a tu negocio a crecer y destacar en el
+            entorno digital.
           </p>
-        </motion.div>
+        </div>
 
         {loading ? (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
-            <span className="ml-2 text-lg">Cargando servicios...</span>
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
           </div>
         ) : error ? (
-          <div className={`text-center p-6 rounded-lg ${isDark ? "bg-red-900/20" : "bg-red-100"} text-red-500 mb-8`}>
-            {error}
+          <div className="text-center text-red-500">
+            <p>Error al cargar los servicios: {error}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {displayServices.map((service, index) => (
-              <motion.div
+            {services.map((service) => (
+              <div
                 key={service.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
+                className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col"
               >
-                <Card
-                  className={`${isDark ? "bg-black/50 border-white/10" : "bg-white/80 border-gray-200"} backdrop-blur-sm hover:border-blue-500/50 transition-all`}
-                >
-                  <CardHeader>
-                    <div className="mb-4">{getIconComponent(service.icon)}</div>
-                    <CardTitle className={isDark ? "text-white" : "text-blue-900"}>{service.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className={isDark ? "text-gray-400" : "text-gray-600"}>
-                      {service.description}
-                    </CardDescription>
-                  </CardContent>
-                </Card>
-              </motion.div>
+                {service.icon && getIcon(service.icon)}
+                <h3 className="text-xl font-bold mb-3">{service.title}</h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-6 flex-grow">{service.description}</p>
+                <a href="#contact" className="inline-flex items-center text-primary hover:text-primary/80 font-medium">
+                  Saber más <ArrowRight className="ml-2 h-4 w-4" />
+                </a>
+              </div>
             ))}
           </div>
         )}

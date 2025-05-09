@@ -101,9 +101,7 @@ export default function Pricing() {
                   </div>
                 )}
                 <CardHeader className="relative">
-                  <CardTitle className={isDark ? "text-white" : "text-blue-900"} text-2xl>
-                    {plan.name}
-                  </CardTitle>
+                  <CardTitle className={`${isDark ? "text-white" : "text-blue-900"} text-2xl`}>{plan.name}</CardTitle>
                   <div className="flex items-baseline mt-2">
                     <span className={`text-3xl font-bold ${isDark ? "text-white" : "text-blue-900"}`}>
                       {plan.price}

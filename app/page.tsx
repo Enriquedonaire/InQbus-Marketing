@@ -2,6 +2,12 @@
 
 import Hero from "@/components/hero"
 import Navbar from "@/components/navbar"
+import Services from "@/components/services"
+import Features from "@/components/features"
+import CaseStudies from "@/components/case-studies"
+import FreeAudit from "@/components/free-audit"
+import Pricing from "@/components/pricing"
+import ContactForm from "@/components/contact-form"
 import Footer from "@/components/footer"
 import MouseMoveEffect from "@/components/mouse-move-effect"
 import { useTheme } from "@/components/theme-provider"
@@ -10,14 +16,6 @@ import LayeredParticlesEffect from "@/components/layered-particles-effect"
 import BackToTop from "@/components/back-to-top"
 import VignetteOverlay from "@/components/vignette-overlay"
 import SubtleLightEffect from "@/components/subtle-light-effect"
-
-// Importar los componentes que usan Supabase
-import ServicesWithSupabase from "@/components/services-with-supabase"
-import Features from "@/components/features"
-import CaseStudiesWithSupabase from "@/components/case-studies-with-supabase"
-import FreeAuditWithSupabase from "@/components/free-audit-with-supabase"
-import PricingWithSupabase from "@/components/pricing-with-supabase"
-import ContactFormWithSupabase from "@/components/contact-form-with-supabase"
 
 export default function Home() {
   const { theme } = useTheme()
@@ -63,24 +61,24 @@ export default function Home() {
           <Hero />
         </div>
         <div id="services">
-          <ServicesWithSupabase />
+          <Services />
         </div>
         <div id="features">
           <Features />
         </div>
         <div id="case-studies">
-          <CaseStudiesWithSupabase />
+          <CaseStudies />
         </div>
         <div id="free-audit">
-          <FreeAuditWithSupabase />
+          <FreeAudit />
         </div>
         <div id="pricing">
           <SimpleErrorBoundary>
-            <PricingWithSupabase />
+            <Pricing />
           </SimpleErrorBoundary>
         </div>
         <div id="contact">
-          <ContactFormWithSupabase />
+          <ContactForm />
         </div>
         <Footer />
       </div>

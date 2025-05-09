@@ -4,69 +4,91 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Save, ArrowLeft } from "lucide-react"
-import { useTheme } from "@/components/theme-provider"
-import { createTodo, updateTodo, getTodoById, type Todo } from "@/app/actions/todo-actions"
+import { createTodo, getTodoById, updateTodo } from "@/app/actions/todo-actions"
+import Link from "next/link"
+import { ArrowLeft, Save, Loader2 } from "lucide-react"
 
 interface TodoFormProps {
   todoId?: string
 }
 
 export default function TodoForm({ todoId }: TodoFormProps) {
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [loadingTodo, setLoadingTodo] = useState(!!todoId)
   const [error, setError] = useState<string | null>(null)
-  const [todo, setTodo] = useState<Partial<Todo>>({
+  const [success, setSuccess] = useState<string | null>(null)
+  const [todo, setTodo] = useState({
     title: "",
     description: "",
     status: "pending",
     priority: "medium",
-    due_date: null,
+    due_date: "",
   })
-  const { theme } = useTheme()
-  const isDark = theme === "dark"
-  const router = useRouter()
-  const isEditing = !!todoId && todoId !== "new"
 
-  // Cargar la tarea si estamos editando
+  const isEditing = todoId && todoId !== "new"
+
+  // Cargar datos si estamos editando
   useEffect(() => {
-    if (todoId && todoId !== "new") {
-      const fetchTodo = async () => {
-        try {
-          const result = await getTodoById(todoId)
-
-          if (result.success) {
-            setTodo(result.data)
-          } else {
-            setError(result.error || "Error al cargar la tarea")
-          }
-        } catch (err) {
-          console.error("Error al cargar la tarea:", err)
-          setError("Error al cargar la tarea. Por favor, inténtalo de nuevo más tarde.")
-        } finally {
-          setLoadingTodo(false)
-        }
+    async function fetchTodo() {
+      if (!isEditing) {
+        setLoadingTodo(false)
+        return
       }
 
-      fetchTodo()
-    } else {
-      setLoadingTodo(false)
+      try {
+        const result = await getTodoById(todoId)
+        if (result.success && result.data) {
+          const todoData = result.data
+          setTodo({
+            title: todoData.title,
+            description: todoData.description || "",
+            status: todoData.status,
+            priority: todoData.priority,
+            due_date: todoData.due_date ? new Date(todoData.due_date).toISOString().split("T")[0] : "",
+          })
+        } else {
+          setError(result.error || "Error al cargar la tarea")
+        }
+      } catch (err: any) {
+        console.error("Error al obtener la tarea:", err)
+        setError(`Error al obtener la tarea: ${err.message}`)
+      } finally {
+        setLoadingTodo(false)
+      }
     }
-  }, [todoId])
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    fetchTodo()
+  }, [todoId, isEditing])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setTodo((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSelectChange = (name: string, value: string) => {
+    setTodo((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
+    setSuccess(null)
 
     try {
-      const formData = new FormData(e.currentTarget)
+      const formData = new FormData()
+      formData.append("title", todo.title)
+      formData.append("description", todo.description)
+      formData.append("status", todo.status)
+      formData.append("priority", todo.priority)
+      formData.append("due_date", todo.due_date)
 
       let result
       if (isEditing) {
@@ -76,120 +98,92 @@ export default function TodoForm({ todoId }: TodoFormProps) {
       }
 
       if (result.success) {
-        router.push("/dashboard/todos")
+        setSuccess(isEditing ? "Tarea actualizada correctamente" : "Tarea creada correctamente")
+        setTimeout(() => {
+          router.push("/dashboard/todos")
+        }, 1500)
       } else {
         setError(result.error || `Error al ${isEditing ? "actualizar" : "crear"} la tarea`)
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(`Error al ${isEditing ? "actualizar" : "crear"} la tarea:`, err)
-      setError(`Error al ${isEditing ? "actualizar" : "crear"} la tarea. Por favor, inténtalo de nuevo más tarde.`)
+      setError(`Error al ${isEditing ? "actualizar" : "crear"} la tarea: ${err.message}`)
     } finally {
       setLoading(false)
     }
   }
 
-  // Formatear la fecha para el input date
-  const formatDateForInput = (dateString: string | null) => {
-    if (!dateString) return ""
-    return new Date(dateString).toISOString().split("T")[0]
-  }
-
   if (loadingTodo) {
     return (
       <div className="flex justify-center items-center py-12">
-        <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+        <Loader2 className="h-8 w-8 text-primary animate-spin" />
         <span className="ml-2 text-lg">Cargando tarea...</span>
       </div>
     )
   }
 
   return (
-    <Card
-      className={`${isDark ? "bg-black/50 border-white/10" : "bg-white/80 border-gray-200"} backdrop-blur-sm max-w-2xl mx-auto`}
-    >
+    <Card>
       <CardHeader>
         <div className="flex items-center">
-          <Button variant="ghost" size="sm" onClick={() => router.push("/dashboard/todos")} className="mr-2">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <CardTitle className={isDark ? "text-white" : "text-blue-900"}>
-            {isEditing ? "Editar Tarea" : "Nueva Tarea"}
-          </CardTitle>
+          <Link href="/dashboard/todos" className="mr-2">
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <CardTitle>{isEditing ? "Editar Tarea" : "Nueva Tarea"}</CardTitle>
         </div>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
-          {error && (
-            <div className={`p-3 rounded ${isDark ? "bg-red-900/30" : "bg-red-100"} text-red-500`}>{error}</div>
+          {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{error}</div>}
+          {success && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">{success}</div>
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="title" className={isDark ? "text-white" : "text-blue-900"}>
-              Título *
-            </Label>
+            <Label htmlFor="title">Título *</Label>
             <Input
               id="title"
               name="title"
-              defaultValue={todo.title}
+              value={todo.title}
+              onChange={handleChange}
               placeholder="Título de la tarea"
               required
-              className={`${
-                isDark
-                  ? "bg-black/30 border-white/10 text-white placeholder:text-gray-500"
-                  : "bg-white/50 border-gray-200 text-gray-900 placeholder:text-gray-400"
-              } focus:border-blue-500`}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description" className={isDark ? "text-white" : "text-blue-900"}>
-              Descripción
-            </Label>
+            <Label htmlFor="description">Descripción</Label>
             <Textarea
               id="description"
               name="description"
-              defaultValue={todo.description || ""}
+              value={todo.description}
+              onChange={handleChange}
               placeholder="Descripción detallada de la tarea"
               rows={4}
-              className={`${
-                isDark
-                  ? "bg-black/30 border-white/10 text-white placeholder:text-gray-500"
-                  : "bg-white/50 border-gray-200 text-gray-900 placeholder:text-gray-400"
-              } focus:border-blue-500 resize-none`}
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="status" className={isDark ? "text-white" : "text-blue-900"}>
-                Estado
-              </Label>
-              <Select name="status" defaultValue={todo.status}>
-                <SelectTrigger
-                  className={`${
-                    isDark ? "bg-black/30 border-white/10 text-white" : "bg-white/50 border-gray-200 text-gray-900"
-                  }`}
-                >
+              <Label htmlFor="status">Estado</Label>
+              <Select value={todo.status} onValueChange={(value) => handleSelectChange("status", value)}>
+                <SelectTrigger id="status">
                   <SelectValue placeholder="Selecciona un estado" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="pending">Pendiente</SelectItem>
-                  <SelectItem value="in-progress">En progreso</SelectItem>
+                  <SelectItem value="in-progress">En Progreso</SelectItem>
                   <SelectItem value="completed">Completada</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="priority" className={isDark ? "text-white" : "text-blue-900"}>
-                Prioridad
-              </Label>
-              <Select name="priority" defaultValue={todo.priority}>
-                <SelectTrigger
-                  className={`${
-                    isDark ? "bg-black/30 border-white/10 text-white" : "bg-white/50 border-gray-200 text-gray-900"
-                  }`}
-                >
+              <Label htmlFor="priority">Prioridad</Label>
+              <Select value={todo.priority} onValueChange={(value) => handleSelectChange("priority", value)}>
+                <SelectTrigger id="priority">
                   <SelectValue placeholder="Selecciona una prioridad" />
                 </SelectTrigger>
                 <SelectContent>
@@ -199,34 +193,21 @@ export default function TodoForm({ todoId }: TodoFormProps) {
                 </SelectContent>
               </Select>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="due_date" className={isDark ? "text-white" : "text-blue-900"}>
-              Fecha de vencimiento
-            </Label>
-            <Input
-              id="due_date"
-              name="due_date"
-              type="date"
-              defaultValue={formatDateForInput(todo.due_date || null)}
-              className={`${
-                isDark ? "bg-black/30 border-white/10 text-white" : "bg-white/50 border-gray-200 text-gray-900"
-              } focus:border-blue-500`}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="due_date">Fecha límite</Label>
+              <Input id="due_date" name="due_date" type="date" value={todo.due_date} onChange={handleChange} />
+            </div>
           </div>
         </CardContent>
 
         <CardFooter className="flex justify-end space-x-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.push("/dashboard/todos")}
-            className={isDark ? "border-white/20 text-white" : "border-gray-300 text-gray-700"}
-          >
-            Cancelar
-          </Button>
-          <Button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white">
+          <Link href="/dashboard/todos">
+            <Button type="button" variant="outline">
+              Cancelar
+            </Button>
+          </Link>
+          <Button type="submit" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />

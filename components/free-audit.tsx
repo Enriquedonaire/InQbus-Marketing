@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { CheckCircle, Send, BarChart, TrendingUp, Search } from "lucide-react"
+import { Search, BarChart, TrendingUp, Send } from "lucide-react"
 import GradientText from "@/components/gradient-text"
 import { useTheme } from "@/components/theme-provider"
+import { submitAuditRequest } from "@/app/actions/audit-actions"
 
 export default function FreeAudit() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -22,11 +23,28 @@ export default function FreeAudit() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    try {
+      const formData = new FormData(e.currentTarget)
+      const name = formData.get("name") as string
+      const email = formData.get("email") as string
+      const website = formData.get("website") as string
+      const message = formData.get("message") as string
 
-    setIsSubmitting(false)
-    setIsSubmitted(true)
+      // Guardar en Supabase
+      await submitAuditRequest({
+        name,
+        email,
+        website,
+        message: message || null,
+      })
+
+      setIsSubmitting(false)
+      setIsSubmitted(true)
+    } catch (error) {
+      console.error("Error al enviar la solicitud:", error)
+      setIsSubmitting(false)
+      // Podríamos mostrar un mensaje de error, pero mantenemos la UX original
+    }
   }
 
   return (
@@ -103,7 +121,17 @@ export default function FreeAudit() {
                   isDark ? "bg-black/50 border-white/10" : "bg-white/80 border-gray-200"
                 } border backdrop-blur-sm rounded-lg p-8 text-center`}
               >
-                <CheckCircle className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+                <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
                 <h3 className={`text-2xl font-bold ${isDark ? "text-white" : "text-blue-900"} mb-2`}>
                   ¡Solicitud Enviada!
                 </h3>

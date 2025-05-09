@@ -1,5 +1,8 @@
 "use client"
 
+import type React from "react"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle, FileText, ArrowRight, Download } from "lucide-react"
@@ -9,15 +12,80 @@ import Footer from "@/components/footer"
 import MouseMoveEffect from "@/components/mouse-move-effect"
 import { useTheme } from "@/components/theme-provider"
 import LayeredParticlesEffect from "@/components/layered-particles-effect"
-// Importar el componente de viñeta
 import VignetteOverlay from "@/components/vignette-overlay"
-// Cambiar la importación del efecto de luz
-// Por esta nueva importación:
 import SubtleLightEffect from "@/components/subtle-light-effect"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { submitGetStartedRequest } from "@/app/actions/get-started-actions"
 
 export default function GetStartedPage() {
   const { theme } = useTheme()
   const isDark = theme === "dark"
+
+  // Estado para el formulario
+  const [selectedPackage, setSelectedPackage] = useState<string | null>(null)
+  const [showForm, setShowForm] = useState(false)
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [company, setCompany] = useState("")
+  const [message, setMessage] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+
+  // Función para seleccionar un paquete
+  const handleSelectPackage = (packageName: string) => {
+    setSelectedPackage(packageName)
+    setShowForm(true)
+    // Scroll al formulario
+    setTimeout(() => {
+      document.getElementById("get-started-form")?.scrollIntoView({ behavior: "smooth" })
+    }, 100)
+  }
+
+  // Función para enviar el formulario
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!selectedPackage) {
+      setError("Por favor, selecciona un paquete primero")
+      return
+    }
+
+    try {
+      setLoading(true)
+      setError(null)
+
+      await submitGetStartedRequest({
+        name,
+        email,
+        package: selectedPackage,
+        company: company || null,
+        message: message || null,
+      })
+
+      // Limpiar formulario
+      setName("")
+      setEmail("")
+      setCompany("")
+      setMessage("")
+
+      // Mostrar mensaje de éxito
+      setSuccess(true)
+
+      // Ocultar mensaje después de 5 segundos
+      setTimeout(() => {
+        setSuccess(false)
+        setShowForm(false)
+      }, 5000)
+    } catch (err: any) {
+      console.error("Error al enviar solicitud:", err)
+      setError(err.message || "Error al enviar la solicitud. Inténtalo de nuevo.")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <main
@@ -98,7 +166,7 @@ export default function GetStartedPage() {
                     </ul>
                   </CardContent>
                   <CardFooter>
-                    <Button variant="glow" className="w-full">
+                    <Button variant="glow" className="w-full" onClick={() => handleSelectPackage(product.title)}>
                       Seleccionar
                     </Button>
                   </CardFooter>
@@ -145,6 +213,76 @@ export default function GetStartedPage() {
                 ))}
               </div>
             </div>
+
+            {/* Formulario de Get Started */}
+            {showForm && (
+              <div
+                id="get-started-form"
+                className={`${
+                  isDark ? "bg-black/50 border-white/10" : "bg-white/80 border-gray-200"
+                } border backdrop-blur-sm rounded-lg p-8 mb-16`}
+              >
+                <h2 className={`text-2xl font-bold ${isDark ? "text-white" : "text-blue-900"} mb-6`}>
+                  Completa tus datos para comenzar con {selectedPackage}
+                </h2>
+
+                {success ? (
+                  <div className="bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded mb-6">
+                    <h3 className="text-lg font-semibold mb-2">¡Solicitud enviada con éxito!</h3>
+                    <p>
+                      Gracias por tu interés. Nos pondremos en contacto contigo lo antes posible para comenzar con el
+                      proceso.
+                    </p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    {error && (
+                      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                        <p>{error}</p>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Nombre</Label>
+                        <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="company">Empresa (opcional)</Label>
+                      <Input id="company" value={company} onChange={(e) => setCompany(e.target.value)} />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="message">Mensaje (opcional)</Label>
+                      <Textarea
+                        id="message"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        placeholder="Cuéntanos más sobre tu negocio y objetivos"
+                        rows={4}
+                      />
+                    </div>
+
+                    <Button type="submit" className="w-full" size="lg" disabled={loading}>
+                      {loading ? "Enviando..." : "Comenzar Ahora"}
+                    </Button>
+                  </form>
+                )}
+              </div>
+            )}
 
             <div
               className={`${

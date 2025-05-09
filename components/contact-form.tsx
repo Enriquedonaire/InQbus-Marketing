@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Send, CheckCircle } from "lucide-react"
 import GradientText from "@/components/gradient-text"
 import { useTheme } from "@/components/theme-provider"
+import { submitContactForm } from "@/app/actions/contact-actions"
 
 export default function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -22,11 +23,35 @@ export default function ContactForm() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    try {
+      const formData = new FormData(e.currentTarget)
+      const name = formData.get("name") as string
+      const email = formData.get("email") as string
+      const company = (formData.get("company") as string) || null
+      const phone = (formData.get("phone") as string) || null
+      const message = formData.get("message") as string
 
-    setIsSubmitting(false)
-    setIsSubmitted(true)
+      // Obtener servicios seleccionados
+      const checkboxes = e.currentTarget.querySelectorAll('input[name="services"]:checked')
+      const services = Array.from(checkboxes).map((cb) => (cb as HTMLInputElement).value)
+
+      // Guardar en Supabase
+      await submitContactForm({
+        name,
+        email,
+        company,
+        phone,
+        message,
+        services: services.length > 0 ? services : null,
+      })
+
+      setIsSubmitting(false)
+      setIsSubmitted(true)
+    } catch (error) {
+      console.error("Error al enviar el formulario:", error)
+      setIsSubmitting(false)
+      // Podríamos mostrar un mensaje de error, pero mantenemos la UX original
+    }
   }
 
   return (

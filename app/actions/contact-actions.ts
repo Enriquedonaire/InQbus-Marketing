@@ -3,39 +3,38 @@
 import { getActionSupabaseClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 
-export async function submitContactForm(formData: FormData) {
+type ContactFormData = {
+  name: string
+  email: string
+  company?: string | null
+  phone?: string | null
+  message: string
+  services?: string[] | null
+}
+
+export async function submitContactForm(data: ContactFormData) {
   try {
     const supabase = getActionSupabaseClient()
 
-    // Extraer datos del formulario
-    const name = formData.get("name") as string
-    const email = formData.get("email") as string
-    const company = (formData.get("company") as string) || null
-    const phone = (formData.get("phone") as string) || null
-    const message = formData.get("message") as string
-
-    // Obtener servicios seleccionados
-    const servicesEntries = Array.from(formData.entries())
-      .filter(([key]) => key.startsWith("services"))
-      .map(([_, value]) => value as string)
-
     // Insertar en la base de datos
-    const { data, error } = await supabase
+    const { data: result, error } = await supabase
       .from("contacts")
       .insert({
-        name,
-        email,
-        company,
-        phone,
-        message,
-        services: servicesEntries.length > 0 ? servicesEntries : null,
+        name: data.name,
+        email: data.email,
+        company: data.company || null,
+        phone: data.phone || null,
+        message: data.message,
+        services: data.services || null,
         status: "pending",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       })
       .select()
 
     if (error) {
       console.error("Error al enviar el formulario:", error)
-      return { success: false, message: "Error al enviar el formulario. Por favor, inténtalo de nuevo." }
+      throw new Error("Error al enviar el formulario. Por favor, inténtalo de nuevo.")
     }
 
     // Revalidar la página para actualizar los datos
@@ -47,9 +46,6 @@ export async function submitContactForm(formData: FormData) {
     }
   } catch (error) {
     console.error("Error inesperado:", error)
-    return {
-      success: false,
-      message: "Ha ocurrido un error inesperado. Por favor, inténtalo de nuevo más tarde.",
-    }
+    throw error
   }
 }

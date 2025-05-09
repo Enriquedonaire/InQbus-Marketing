@@ -1,174 +1,222 @@
-import Link from "next/link"
+"use client"
+
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { getTodos } from "@/app/actions/todo-actions"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { CheckSquare, Users, BarChart, Calendar } from "lucide-react"
+import { CheckCircle, Clock, AlertTriangle, ListTodo } from "lucide-react"
 
 export default function DashboardPage() {
+  const [todos, setTodos] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function loadTodos() {
+      try {
+        setLoading(true)
+        const result = await getTodos()
+        if (result.success) {
+          setTodos(result.data || [])
+        } else {
+          setError(result.error || "Error al cargar las tareas")
+        }
+      } catch (err) {
+        console.error("Error al cargar las tareas:", err)
+        setError("Error al cargar las tareas")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadTodos()
+  }, [])
+
+  // Calcular estadísticas
+  const totalTasks = todos.length
+  const completedTasks = todos.filter((todo) => todo.status === "completed").length
+  const pendingTasks = todos.filter((todo) => todo.status === "pending").length
+  const inProgressTasks = todos.filter((todo) => todo.status === "in-progress").length
+  const highPriorityTasks = todos.filter((todo) => todo.priority === "high").length
+
+  // Calcular tareas próximas a vencer (en los próximos 3 días)
+  const today = new Date()
+  const threeDaysFromNow = new Date()
+  threeDaysFromNow.setDate(today.getDate() + 3)
+
+  const upcomingTasks = todos.filter((todo) => {
+    if (!todo.due_date) return false
+    const dueDate = new Date(todo.due_date)
+    return dueDate <= threeDaysFromNow && dueDate >= today && todo.status !== "completed"
+  })
+
   return (
-    <div className="container mx-auto px-6 py-8">
-      <h1 className="text-3xl font-bold text-white mb-8">Dashboard</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="bg-black/50 border-white/10 backdrop-blur-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-white text-lg">Tareas</CardTitle>
-            <CardDescription className="text-gray-400">Gestión de tareas</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between items-center">
-              <div className="text-3xl font-bold text-white">10</div>
-              <CheckSquare className="h-8 w-8 text-blue-500" />
-            </div>
-            <div className="mt-4">
-              <Link href="/dashboard/todos">
-                <Button variant="ghost" className="w-full text-white border border-white/10 hover:bg-white/10">
-                  Ver tareas
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-black/50 border-white/10 backdrop-blur-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-white text-lg">Contactos</CardTitle>
-            <CardDescription className="text-gray-400">Leads y clientes</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between items-center">
-              <div className="text-3xl font-bold text-white">24</div>
-              <Users className="h-8 w-8 text-green-500" />
-            </div>
-            <div className="mt-4">
-              <Link href="/dashboard/contacts">
-                <Button variant="ghost" className="w-full text-white border border-white/10 hover:bg-white/10">
-                  Ver contactos
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-black/50 border-white/10 backdrop-blur-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-white text-lg">Analíticas</CardTitle>
-            <CardDescription className="text-gray-400">Rendimiento del sitio</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between items-center">
-              <div className="text-3xl font-bold text-white">+12%</div>
-              <BarChart className="h-8 w-8 text-purple-500" />
-            </div>
-            <div className="mt-4">
-              <Link href="/dashboard/analytics">
-                <Button variant="ghost" className="w-full text-white border border-white/10 hover:bg-white/10">
-                  Ver analíticas
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-black/50 border-white/10 backdrop-blur-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-white text-lg">Eventos</CardTitle>
-            <CardDescription className="text-gray-400">Próximas actividades</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between items-center">
-              <div className="text-3xl font-bold text-white">3</div>
-              <Calendar className="h-8 w-8 text-orange-500" />
-            </div>
-            <div className="mt-4">
-              <Link href="/dashboard/events">
-                <Button variant="ghost" className="w-full text-white border border-white/10 hover:bg-white/10">
-                  Ver eventos
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <Link href="/dashboard/todos">
+          <Button>Ver todas las tareas</Button>
+        </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-black/50 border-white/10 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-white">Tareas Recientes</CardTitle>
-            <CardDescription className="text-gray-400">Últimas tareas creadas o actualizadas</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                <div>
-                  <h3 className="text-white font-medium">Actualizar contenido SEO</h3>
-                  <p className="text-gray-400 text-sm">Vence en 3 días</p>
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      ) : error ? (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{error}</div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-medium">Total de Tareas</CardTitle>
+                <CardDescription>Todas las tareas registradas</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center">
+                  <ListTodo className="h-8 w-8 text-gray-500 mr-2" />
+                  <span className="text-3xl font-bold">{totalTasks}</span>
                 </div>
-                <div className="bg-yellow-500 text-white text-xs px-2 py-1 rounded">Pendiente</div>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                <div>
-                  <h3 className="text-white font-medium">Preparar campaña de email</h3>
-                  <p className="text-gray-400 text-sm">Vence en 7 días</p>
-                </div>
-                <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded">En progreso</div>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                <div>
-                  <h3 className="text-white font-medium">Analizar métricas de redes</h3>
-                  <p className="text-gray-400 text-sm">Completada hace 2 días</p>
-                </div>
-                <div className="bg-green-500 text-white text-xs px-2 py-1 rounded">Completada</div>
-              </div>
-            </div>
-            <div className="mt-4">
-              <Link href="/dashboard/todos">
-                <Button variant="ghost" className="w-full text-white border border-white/10 hover:bg-white/10">
-                  Ver todas las tareas
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
 
-        <Card className="bg-black/50 border-white/10 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-white">Contactos Recientes</CardTitle>
-            <CardDescription className="text-gray-400">Últimos leads y mensajes recibidos</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                <div>
-                  <h3 className="text-white font-medium">Juan Pérez</h3>
-                  <p className="text-gray-400 text-sm">juan@empresa.com</p>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-medium">Tareas Completadas</CardTitle>
+                <CardDescription>Tareas finalizadas</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center">
+                  <CheckCircle className="h-8 w-8 text-green-500 mr-2" />
+                  <span className="text-3xl font-bold">{completedTasks}</span>
+                  <span className="text-sm text-gray-500 ml-2">
+                    ({totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0}%)
+                  </span>
                 </div>
-                <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded">Nuevo</div>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                <div>
-                  <h3 className="text-white font-medium">María García</h3>
-                  <p className="text-gray-400 text-sm">maria@startup.com</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-medium">En Progreso</CardTitle>
+                <CardDescription>Tareas en curso</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center">
+                  <Clock className="h-8 w-8 text-blue-500 mr-2" />
+                  <span className="text-3xl font-bold">{inProgressTasks}</span>
                 </div>
-                <div className="bg-green-500 text-white text-xs px-2 py-1 rounded">Contactado</div>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                <div>
-                  <h3 className="text-white font-medium">Carlos López</h3>
-                  <p className="text-gray-400 text-sm">carlos@negocio.es</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-medium">Alta Prioridad</CardTitle>
+                <CardDescription>Tareas urgentes</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center">
+                  <AlertTriangle className="h-8 w-8 text-red-500 mr-2" />
+                  <span className="text-3xl font-bold">{highPriorityTasks}</span>
                 </div>
-                <div className="bg-purple-500 text-white text-xs px-2 py-1 rounded">Cliente</div>
-              </div>
-            </div>
-            <div className="mt-4">
-              <Link href="/dashboard/contacts">
-                <Button variant="ghost" className="w-full text-white border border-white/10 hover:bg-white/10">
-                  Ver todos los contactos
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Tareas Próximas a Vencer</CardTitle>
+                <CardDescription>Tareas que vencen en los próximos 3 días</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {upcomingTasks.length === 0 ? (
+                  <p className="text-gray-500">No hay tareas próximas a vencer</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {upcomingTasks.map((task) => (
+                      <li key={task.id} className="border-b pb-2">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium">{task.title}</p>
+                            <p className="text-sm text-gray-500">
+                              Vence: {new Date(task.due_date).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div>
+                            <span
+                              className={`px-2 py-1 rounded text-xs ${
+                                task.priority === "high"
+                                  ? "bg-red-100 text-red-800"
+                                  : task.priority === "medium"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-green-100 text-green-800"
+                              }`}
+                            >
+                              {task.priority}
+                            </span>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Resumen de Estado</CardTitle>
+                <CardDescription>Distribución de tareas por estado</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span>Pendientes</span>
+                      <span>{pendingTasks} tareas</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div
+                        className="bg-yellow-400 h-2.5 rounded-full"
+                        style={{ width: `${totalTasks > 0 ? (pendingTasks / totalTasks) * 100 : 0}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span>En Progreso</span>
+                      <span>{inProgressTasks} tareas</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div
+                        className="bg-blue-500 h-2.5 rounded-full"
+                        style={{ width: `${totalTasks > 0 ? (inProgressTasks / totalTasks) * 100 : 0}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span>Completadas</span>
+                      <span>{completedTasks} tareas</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div
+                        className="bg-green-500 h-2.5 rounded-full"
+                        style={{ width: `${totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      )}
     </div>
   )
 }
