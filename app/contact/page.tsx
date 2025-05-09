@@ -1,4 +1,3 @@
-import { Suspense } from "react"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import MouseMoveEffect from "@/components/mouse-move-effect"
@@ -6,7 +5,7 @@ import { MapPin, Mail, Clock } from "lucide-react"
 import LayeredParticlesEffect from "@/components/layered-particles-effect"
 import VignetteOverlay from "@/components/vignette-overlay"
 import SubtleLightEffect from "@/components/subtle-light-effect"
-import ClientContactWrapper from "@/components/client-contact-wrapper"
+import ContactFormStatic from "@/components/contact-form-static"
 
 export default function ContactPage() {
   return (
@@ -91,30 +90,8 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* Envolvemos el componente cliente en Suspense */}
-          <Suspense
-            fallback={
-              <div className="max-w-3xl mx-auto">
-                <div className="border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-black/50 backdrop-blur-sm rounded-lg p-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    {[0, 1, 2, 3].map((i) => (
-                      <div key={i} className="space-y-2">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-20 animate-pulse"></div>
-                        <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded w-full animate-pulse"></div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="space-y-2 mb-6">
-                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-40 animate-pulse"></div>
-                    <div className="h-32 bg-gray-200 dark:bg-gray-800 rounded w-full animate-pulse"></div>
-                  </div>
-                  <div className="h-12 bg-blue-500 rounded-md w-full animate-pulse"></div>
-                </div>
-              </div>
-            }
-          >
-            <ClientContactWrapper />
-          </Suspense>
+          {/* Usamos el formulario estático que no usa useSearchParams */}
+          <ContactFormStatic />
 
           <div className="mt-16">
             <div className="border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-black/50 backdrop-blur-sm rounded-lg overflow-hidden h-96">

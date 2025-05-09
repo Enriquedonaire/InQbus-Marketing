@@ -3,8 +3,6 @@ import Footer from "@/components/footer"
 import { MapPin, Mail, Clock } from "lucide-react"
 
 export default function ContactLoading() {
-  // No podemos usar hooks como useTheme en un componente de carga,
-  // así que usamos clases que funcionan tanto en modo claro como oscuro
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-black/[0.96] antialiased relative overflow-hidden">
       {/* Navbar */}
