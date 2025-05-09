@@ -40,27 +40,25 @@ InQbus Marketing es una plataforma web moderna para una agencia de marketing dig
 ## 📁 Estructura del Proyecto
 
 \`\`\`
-inqubus-marketing/
-├── app/                      # Rutas y páginas (Next.js App Router)
-│   ├── actions/              # Server Actions
+📂 inqubus-marketing/ ├── app/ # Rutas y páginas (Next.js App Router) │   ├── actions/ # Server Actions
 │   │   ├── audit-actions.ts
 │   │   ├── contact-actions.ts
 │   │   └── todo-actions.ts
-│   ├── admin/                # Panel de administración
-│   ├── api/                  # API Routes
+│   ├── admin/ # Panel de administración
+│   ├── api/ # API Routes
 │   │   └── seed-data/
-│   ├── dashboard/            # Dashboard de tareas
+│   ├── dashboard/ # Dashboard de tareas
 │   │   └── todos/
-│   ├── contact/              # Página de contacto
-│   ├── get-started/          # Página para comenzar
-│   ├── globals.css           # Estilos globales
-│   ├── layout.tsx            # Layout principal
-│   └── page.tsx              # Página principal
-├── components/               # Componentes reutilizables
-│   ├── admin/                # Componentes de administración
-│   ├── error-boundary/       # Manejo de errores
-│   ├── todos/                # Componentes de tareas
-│   ├── ui/                   # Componentes de UI (shadcn)
+│   ├── contact/ # Página de contacto
+│   ├── get-started/ # Página para comenzar
+│   ├── globals.css # Estilos globales
+│   ├── layout.tsx # Layout principal
+│   └── page.tsx # Página principal
+├── components/ # Componentes reutilizables
+│   ├── admin/ # Componentes de administración
+│   ├── error-boundary/ # Manejo de errores
+│   ├── todos/ # Componentes de tareas
+│   ├── ui/ # Componentes de UI (shadcn)
 │   ├── advanced-particles.tsx
 │   ├── back-to-top.tsx
 │   ├── case-studies.tsx
@@ -95,7 +93,7 @@ inqubus-marketing/
 │   ├── theme-provider.tsx
 │   ├── theme-switcher.tsx
 │   └── vignette-overlay.tsx
-├── lib/                      # Utilidades y configuraciones
+├── lib/ # Utilidades y configuraciones
 │   ├── error-logging.ts
 │   ├── hoc/
 │   ├── hooks/
@@ -109,12 +107,12 @@ inqubus-marketing/
 │   │   └── server.ts
 │   └── utils/
 │       └── fix-tailwind-props.tsx
-├── public/                   # Archivos estáticos
-│   └── inqubus-logo.png      # Logo de InQbus
-├── docs/                     # Documentación
-├── tailwind.config.ts        # Configuración de Tailwind
-├── package.json              # Dependencias
-└── tsconfig.json             # Configuración de TypeScript
+├── public/ # Archivos estáticos
+│   └── inqubus-logo.png # Logo de InQbus
+├── docs/ # Documentación
+├── tailwind.config.ts # Configuración de Tailwind
+├── package.json # Dependencias
+└── tsconfig.json # Configuración de TypeScript
 \`\`\`
 
 ## 🔧 Instalación y Uso
@@ -185,3 +183,11 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 
 ## 👥 Contacto
 Para cualquier consulta o sugerencia, por favor contacta a través de [contacto@inqubus.com](mailto:contacto@inqubus.com).
+\`\`\`
+
+
+
+
+
+```types file="lib/supabase/database.types"
+... This file was left out for brevity. Assume it is correct and does not need any modifications. ...
