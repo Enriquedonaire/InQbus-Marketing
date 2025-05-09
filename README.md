@@ -122,7 +122,7 @@ inqubus-marketing/
 
 1. **Clonar el repositorio**
 \`\`\`bash
-git clone https://github.com/tu-usuario/inqubus-marketing.git
+git clone [https://github.com/tu-usuario/inqubus-marketing.git](https://github.com/Enriquedonaire/InQbus-Marketing)
 cd inqubus-marketing
 \`\`\`
 
