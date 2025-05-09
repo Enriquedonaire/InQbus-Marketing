@@ -9,6 +9,7 @@ type GetStartedData = {
   package: string
   company?: string | null
   message?: string | null
+  phone?: string | null
 }
 
 export async function submitGetStartedRequest(data: GetStartedData) {
