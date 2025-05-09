@@ -36,37 +36,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        // Verificar si hay una sesión en Supabase
-        const {
-          data: { session },
-        } = await supabase.auth.getSession()
-
-        if (session) {
-          // Obtener el perfil del usuario
-          const { data: profile } = await supabase
-            .from("user_profiles")
-            .select("username, role")
-            .eq("user_id", session.user.id)
-            .single()
-
-          if (profile) {
-            setUser({
-              id: session.user.id,
-              username: profile.username,
-              role: profile.role as "admin" | "recruiter",
-            })
-          }
-        } else {
-          // Verificar si hay información en localStorage (fallback)
-          const localAuth = localStorage.getItem("inqubus_auth")
-          if (localAuth) {
-            const { username, role } = JSON.parse(localAuth)
-            setUser({
-              id: "local-id",
-              username,
-              role: role as "admin" | "recruiter",
-            })
-          }
+        // Verificar si hay información en localStorage (fallback)
+        const localAuth = localStorage.getItem("inqubus_auth")
+        if (localAuth) {
+          const { username, role } = JSON.parse(localAuth)
+          setUser({
+            id: "local-id",
+            username,
+            role: role as "admin" | "recruiter",
+          })
         }
       } catch (error) {
         console.error("Error al obtener el usuario:", error)
@@ -76,37 +54,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     getUser()
-
-    // Suscribirse a cambios en la autenticación
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" && session) {
-        // Actualizar el usuario cuando inicie sesión
-        const { data: profile } = await supabase
-          .from("user_profiles")
-          .select("username, role")
-          .eq("user_id", session.user.id)
-          .single()
-
-        if (profile) {
-          setUser({
-            id: session.user.id,
-            username: profile.username,
-            role: profile.role as "admin" | "recruiter",
-          })
-        }
-      } else if (event === "SIGNED_OUT") {
-        setUser(null)
-        localStorage.removeItem("inqubus_auth")
-      }
-    })
-
-    return () => {
-      authListener.subscription.unsubscribe()
-    }
-  }, [supabase, router])
+  }, [])
 
   const signOut = async () => {
-    await supabase.auth.signOut()
     localStorage.removeItem("inqubus_auth")
     setUser(null)
     router.push("/login")
