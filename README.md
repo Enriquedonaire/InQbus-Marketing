@@ -40,25 +40,27 @@ InQbus Marketing es una plataforma web moderna para una agencia de marketing dig
 ## 📁 Estructura del Proyecto
 
 \`\`\`
-📂 inqubus-marketing/ ├── app/ # Rutas y páginas (Next.js App Router) │   ├── actions/ # Server Actions
+inqubus-marketing/
+├── app/                      # Rutas y páginas (Next.js App Router)
+│   ├── actions/              # Server Actions
 │   │   ├── audit-actions.ts
 │   │   ├── contact-actions.ts
 │   │   └── todo-actions.ts
-│   ├── admin/ # Panel de administración
-│   ├── api/ # API Routes
+│   ├── admin/                # Panel de administración
+│   ├── api/                  # API Routes
 │   │   └── seed-data/
-│   ├── dashboard/ # Dashboard de tareas
+│   ├── dashboard/            # Dashboard de tareas
 │   │   └── todos/
-│   ├── contact/ # Página de contacto
-│   ├── get-started/ # Página para comenzar
-│   ├── globals.css # Estilos globales
-│   ├── layout.tsx # Layout principal
-│   └── page.tsx # Página principal
-├── components/ # Componentes reutilizables
-│   ├── admin/ # Componentes de administración
-│   ├── error-boundary/ # Manejo de errores
-│   ├── todos/ # Componentes de tareas
-│   ├── ui/ # Componentes de UI (shadcn)
+│   ├── contact/              # Página de contacto
+│   ├── get-started/          # Página para comenzar
+│   ├── globals.css           # Estilos globales
+│   ├── layout.tsx            # Layout principal
+│   └── page.tsx              # Página principal
+├── components/               # Componentes reutilizables
+│   ├── admin/                # Componentes de administración
+│   ├── error-boundary/       # Manejo de errores
+│   ├── todos/                # Componentes de tareas
+│   ├── ui/                   # Componentes de UI (shadcn)
 │   ├── advanced-particles.tsx
 │   ├── back-to-top.tsx
 │   ├── case-studies.tsx
@@ -93,7 +95,7 @@ InQbus Marketing es una plataforma web moderna para una agencia de marketing dig
 │   ├── theme-provider.tsx
 │   ├── theme-switcher.tsx
 │   └── vignette-overlay.tsx
-├── lib/ # Utilidades y configuraciones
+├── lib/                      # Utilidades y configuraciones
 │   ├── error-logging.ts
 │   ├── hoc/
 │   ├── hooks/
@@ -107,50 +109,50 @@ InQbus Marketing es una plataforma web moderna para una agencia de marketing dig
 │   │   └── server.ts
 │   └── utils/
 │       └── fix-tailwind-props.tsx
-├── public/ # Archivos estáticos
-│   └── inqubus-logo.png # Logo de InQbus
-├── docs/ # Documentación
-├── tailwind.config.ts # Configuración de Tailwind
-├── package.json # Dependencias
-└── tsconfig.json # Configuración de TypeScript
+├── public/                   # Archivos estáticos
+│   └── inqubus-logo.png      # Logo de InQbus
+├── docs/                     # Documentación
+├── tailwind.config.ts        # Configuración de Tailwind
+├── package.json              # Dependencias
+└── tsconfig.json             # Configuración de TypeScript
 \`\`\`
 
 ## 🔧 Instalación y Uso
 
 1. **Clonar el repositorio**
- \`\`\`bash
- git clone https://github.com/tu-usuario/inqubus-marketing.git
- cd inqubus-marketing
- \`\`\`
+\`\`\`bash
+git clone https://github.com/tu-usuario/inqubus-marketing.git
+cd inqubus-marketing
+\`\`\`
 
 2. **Instalar dependencias**
- \`\`\`bash
- npm install
- \`\`\`
+\`\`\`bash
+npm install
+\`\`\`
 
 3. **Configurar variables de entorno**
- Crea un archivo `.env.local` con las siguientes variables:
- \`\`\`
- NEXT_PUBLIC_SUPABASE_URL=tu-url-de-supabase
- NEXT_PUBLIC_SUPABASE_ANON_KEY=tu-clave-anonima-de-supabase
- \`\`\`
+Crea un archivo `.env.local` con las siguientes variables:
+\`\`\`
+NEXT_PUBLIC_SUPABASE_URL=tu-url-de-supabase
+NEXT_PUBLIC_SUPABASE_ANON_KEY=tu-clave-anonima-de-supabase
+\`\`\`
 
 4. **Inicializar la base de datos**
- Ejecuta la ruta API para sembrar datos iniciales:
- \`\`\`bash
- curl -X POST http://localhost:3000/api/seed-data
- \`\`\`
+Ejecuta la ruta API para sembrar datos iniciales:
+\`\`\`bash
+curl -X POST http://localhost:3000/api/seed-data
+\`\`\`
 
 5. **Ejecutar en desarrollo**
- \`\`\`bash
- npm run dev
- \`\`\`
+\`\`\`bash
+npm run dev
+\`\`\`
 
 6. **Construir para producción**
- \`\`\`bash
- npm run build
- npm start
- \`\`\`
+\`\`\`bash
+npm run build
+npm start
+\`\`\`
 
 ## 🧩 Características Principales
 
