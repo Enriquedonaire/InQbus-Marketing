@@ -1,6 +1,6 @@
 # InQbus Marketing
 
-![InQbus Marketing](https://placeholder.svg?height=300&width=800&query=InQbus+Marketing+Agency+Banner)
+<img src="public/inqubus-logo.png" alt="InQbus Marketing" width="200"/>
 
 ## 🚀 Descripción
 
@@ -110,6 +110,7 @@ inqubus-marketing/
 │   └── utils/
 │       └── fix-tailwind-props.tsx
 ├── public/                   # Archivos estáticos
+│   └── inqubus-logo.png      # Logo de InQbus
 ├── docs/                     # Documentación
 ├── tailwind.config.ts        # Configuración de Tailwind
 ├── package.json              # Dependencias
