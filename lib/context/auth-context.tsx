@@ -72,6 +72,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       setUser(userData)
       localStorage.setItem("inqubus_auth", JSON.stringify(userData))
+      // También guardar en cookies para el middleware
+      document.cookie = `inqubus_auth=${JSON.stringify(userData)}; path=/; max-age=86400; SameSite=Lax`
+
       return { success: true, message: "Inicio de sesión exitoso" }
     }
 
@@ -81,6 +84,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = () => {
     setUser(null)
     localStorage.removeItem("inqubus_auth")
+    // Eliminar la cookie
+    document.cookie = "inqubus_auth=; path=/; max-age=0; SameSite=Lax"
     router.push("/login")
   }
 

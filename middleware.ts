@@ -11,9 +11,8 @@ export function middleware(request: NextRequest) {
   if (isProtectedRoute) {
     // Obtener la cookie de autenticación
     const authCookie = request.cookies.get("inqubus_auth")?.value
-    const authData = localStorage.getItem("inqubus_auth")
 
-    // Verificar autenticación en localStorage o cookies
+    // Verificar autenticación en cookies
     let isAuthenticated = false
     let isAdmin = false
 
@@ -25,14 +24,6 @@ export function middleware(request: NextRequest) {
       } catch (error) {
         console.error("Error parsing auth cookie:", error)
       }
-    } else if (authData) {
-      try {
-        const userData = JSON.parse(authData)
-        isAuthenticated = true
-        isAdmin = userData.role === "admin"
-      } catch (error) {
-        console.error("Error parsing auth data:", error)
-      }
     }
 
     // Si no está autenticado, redirigir al login
@@ -42,8 +33,8 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl)
     }
 
-    // Si no es admin, redirigir a la página principal
-    if (!isAdmin) {
+    // Si la ruta es /admin y no es admin, redirigir a la página principal
+    if (path.startsWith("/admin") && !isAdmin) {
       return NextResponse.redirect(new URL("/", request.url))
     }
   }
