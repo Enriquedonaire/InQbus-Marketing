@@ -1,85 +1,112 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { useTheme } from "@/components/theme-provider"
 import AuthNavbar from "@/components/auth-navbar"
 
 export default function AdminPage() {
   const [user, setUser] = useState<{ username: string; role: string } | null>(null)
   const [loading, setLoading] = useState(true)
-  const router = useRouter()
+  const { theme } = useTheme()
+  const isDark = theme === "dark"
 
   useEffect(() => {
-    // Verificar autenticación
-    const authData = localStorage.getItem("inqubus_auth")
-    if (!authData) {
-      router.push("/login")
-      return
-    }
+    try {
+      const authData = localStorage.getItem("inqubus_auth")
+      if (authData) {
+        const userData = JSON.parse(authData)
+        setUser(userData)
 
-    const userData = JSON.parse(authData)
-    if (userData.role !== "admin") {
-      router.push("/")
-      return
+        // Redirigir si no es admin
+        if (userData.role !== "admin") {
+          window.location.href = "/"
+        }
+      } else {
+        // Redirigir si no hay datos de autenticación
+        window.location.href = "/login"
+      }
+    } catch (e) {
+      console.error("Error al verificar autenticación:", e)
+      window.location.href = "/login"
+    } finally {
+      setLoading(false)
     }
-
-    setUser(userData)
-    setLoading(false)
-  }, [router])
+  }, [])
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Cargando...</div>
   }
 
+  if (!user || user.role !== "admin") {
+    return null // No debería llegar aquí debido a la redirección
+  }
+
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className={`min-h-screen ${isDark ? "bg-black text-white" : "bg-gray-50 text-gray-900"}`}>
       <AuthNavbar />
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="border-4 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-4 min-h-[70vh]">
-            <h1 className="text-2xl font-bold mb-4">Panel de Administración</h1>
-            <p className="mb-4">
-              Bienvenido, {user?.username}. Este es el panel de administración de InQbus Marketing.
-            </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
-              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                <h2 className="text-lg font-semibold mb-2">Solicitudes de Auditoría</h2>
-                <p className="text-gray-600 dark:text-gray-400">Gestiona las solicitudes de auditoría gratuita.</p>
-                <div className="mt-4">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                    12 nuevas solicitudes
-                  </span>
-                </div>
-              </div>
+      <header className={`py-4 border-b ${isDark ? "border-gray-800" : "border-gray-200"}`}>
+        <div className="container mx-auto px-4">
+          <h1 className="text-xl font-bold">
+            In<span className="text-blue-600">Q</span>bus Admin
+          </h1>
+        </div>
+      </header>
 
-              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                <h2 className="text-lg font-semibold mb-2">Mensajes de Contacto</h2>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Revisa los mensajes enviados a través del formulario de contacto.
-                </p>
-                <div className="mt-4">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                    5 mensajes sin leer
-                  </span>
-                </div>
-              </div>
+      <main className="container mx-auto px-4 py-8">
+        <h2 className="text-2xl font-bold mb-6">Panel de Administración</h2>
 
-              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                <h2 className="text-lg font-semibold mb-2">Casos de Éxito</h2>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Administra los casos de éxito mostrados en la página principal.
-                </p>
-                <div className="mt-4">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                    3 casos publicados
-                  </span>
-                </div>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className={`p-6 rounded-lg ${isDark ? "bg-gray-900" : "bg-white shadow"}`}>
+            <h3 className="text-lg font-medium mb-4">Estadísticas</h3>
+            <ul className="space-y-2">
+              <li className="flex justify-between">
+                <span className={isDark ? "text-gray-400" : "text-gray-500"}>Visitantes</span>
+                <span>1,234</span>
+              </li>
+              <li className="flex justify-between">
+                <span className={isDark ? "text-gray-400" : "text-gray-500"}>Solicitudes</span>
+                <span>56</span>
+              </li>
+              <li className="flex justify-between">
+                <span className={isDark ? "text-gray-400" : "text-gray-500"}>Conversiones</span>
+                <span>12%</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className={`p-6 rounded-lg ${isDark ? "bg-gray-900" : "bg-white shadow"}`}>
+            <h3 className="text-lg font-medium mb-4">Solicitudes Recientes</h3>
+            <ul className="space-y-2">
+              <li>Juan Pérez - Auditoría SEO</li>
+              <li>María García - Campaña de Redes</li>
+              <li>Carlos López - Rediseño Web</li>
+            </ul>
+          </div>
+
+          <div className={`p-6 rounded-lg ${isDark ? "bg-gray-900" : "bg-white shadow"}`}>
+            <h3 className="text-lg font-medium mb-4">Acciones Rápidas</h3>
+            <div className="space-y-2">
+              <button className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded">
+                Ver Solicitudes
+              </button>
+              <button className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded">
+                Gestionar Casos
+              </button>
+              <button className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded">
+                Configuración
+              </button>
             </div>
           </div>
         </div>
-      </div>
+
+        <div className="mt-8">
+          <Link href="/" className="text-blue-600 hover:underline">
+            ← Volver al sitio principal
+          </Link>
+        </div>
+      </main>
     </div>
   )
 }
