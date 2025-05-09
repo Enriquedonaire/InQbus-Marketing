@@ -1,22 +1,19 @@
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
+import ClientContactWrapper from "@/components/client-contact-wrapper"
+import { Suspense } from "react"
+
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
-        <div className="md:flex">
-          <div className="p-8">
-            <div className="uppercase tracking-wide text-sm text-indigo-500 font-semibold">Contacto</div>
-            <h1 className="block mt-1 text-lg leading-tight font-medium text-black">Página en mantenimiento</h1>
-            <p className="mt-2 text-gray-500">
-              Estamos trabajando en mejorar esta página. Por favor, vuelve más tarde.
-            </p>
-            <div className="mt-4">
-              <a href="/" className="text-indigo-500 hover:text-indigo-700">
-                Volver al inicio
-              </a>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Navbar />
+      <div className="container mx-auto px-4 py-12">
+        <h1 className="text-3xl font-bold text-center mb-8 text-gray-800 dark:text-white">Contacta con nosotros</h1>
+        <Suspense fallback={<div>Cargando formulario...</div>}>
+          <ClientContactWrapper />
+        </Suspense>
       </div>
+      <Footer />
     </div>
   )
 }
