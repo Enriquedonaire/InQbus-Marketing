@@ -39,7 +39,7 @@ InQbus Marketing es una plataforma web moderna para una agencia de marketing dig
 
 ## 📁 Estructura del Proyecto
 
-\`\`\`
+\\\
 inqubus-marketing/
 ├── app/                      # Rutas y páginas (Next.js App Router)
 │   ├── actions/              # Server Actions
@@ -115,7 +115,7 @@ inqubus-marketing/
 ├── tailwind.config.ts        # Configuración de Tailwind
 ├── package.json              # Dependencias
 └── tsconfig.json             # Configuración de TypeScript
-\`\`\`
+\\\
 
 ## 🔧 Instalación y Uso
 
