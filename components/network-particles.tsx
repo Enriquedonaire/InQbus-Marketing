@@ -49,13 +49,17 @@ export default function NetworkParticles({ id = "tsparticles", className = "h-fu
         fpsLimit: 60,
         particles: {
           color: {
-            value: isDark ? "#ffffff" : "#1e293b",
+            value: isDark
+              ? ["#3498db", "#e74c3c", "#2ecc71", "#f39c12", "#9b59b6"]
+              : ["#3498db", "#e74c3c", "#2ecc71", "#f39c12", "#9b59b6"],
           },
           links: {
-            color: isDark ? "#ffffff" : "#1e293b",
+            color: {
+              value: isDark ? "#ffffff" : "#1e293b",
+            },
             distance: 150,
             enable: true,
-            opacity: 0.5,
+            opacity: isDark ? 0.3 : 0.2,
             width: 1,
           },
           move: {
@@ -81,7 +85,7 @@ export default function NetworkParticles({ id = "tsparticles", className = "h-fu
             value: 80,
           },
           opacity: {
-            value: 0.7,
+            value: isDark ? 0.7 : 0.5,
           },
           shape: {
             type: "circle",
