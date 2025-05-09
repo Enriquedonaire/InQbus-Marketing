@@ -1,15 +1,12 @@
 "use client"
 
 import Link from "next/link"
-
-import { Button } from "@/components/ui/button"
-
 import { useEffect, useState } from "react"
-import { useAuth } from "@/lib/context/auth-context"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
-import type { Database } from "@/lib/supabase/database.types"
+import { useAuth } from "@/lib/context/auth-context"
 import { AuthNavbar } from "@/components/auth-navbar"
 
 export default function AdminPage() {
@@ -17,7 +14,7 @@ export default function AdminPage() {
   const [contacts, setContacts] = useState<any[]>([])
   const [audits, setAudits] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const supabase = createClientComponentClient<Database>()
+  const supabase = createClientComponentClient()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -198,11 +195,6 @@ export default function AdminPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
-                        {audit.company && (
-                          <p>
-                            <span className="font-medium">Empresa:</span> {audit.company}
-                          </p>
-                        )}
                         {audit.website && (
                           <p>
                             <span className="font-medium">Sitio web:</span> {audit.website}

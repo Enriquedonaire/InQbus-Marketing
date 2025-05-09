@@ -1,9 +1,7 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { useRouter } from "next/navigation"
-import type { Database } from "@/lib/supabase/database.types"
 
 type User = {
   id: string
@@ -14,14 +12,16 @@ type User = {
 type AuthContextType = {
   user: User | null
   loading: boolean
-  signOut: () => Promise<void>
+  signIn: (username: string, password: string) => Promise<{ success: boolean; message: string }>
+  signOut: () => void
   isAdmin: boolean
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
-  signOut: async () => {},
+  signIn: async () => ({ success: false, message: "No implementado" }),
+  signOut: () => {},
   isAdmin: false,
 })
 
@@ -30,35 +30,57 @@ export const useAuth = () => useContext(AuthContext)
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClientComponentClient<Database>()
   const router = useRouter()
 
+  // Credenciales hardcodeadas para demostración
+  const validCredentials = [
+    {
+      username: "Enrique Andres Donaire",
+      password: "<Q2N41R3/98-40-31/>",
+      role: "admin",
+    },
+    {
+      username: "Recruiter",
+      password: "Recruiter-Gest-2025",
+      role: "recruiter",
+    },
+  ]
+
   useEffect(() => {
-    const getUser = async () => {
+    // Verificar si hay un usuario en localStorage al cargar
+    const storedUser = localStorage.getItem("inqubus_auth")
+    if (storedUser) {
       try {
-        // Verificar si hay información en localStorage (fallback)
-        const localAuth = localStorage.getItem("inqubus_auth")
-        if (localAuth) {
-          const { username, role } = JSON.parse(localAuth)
-          setUser({
-            id: "local-id",
-            username,
-            role: role as "admin" | "recruiter",
-          })
-        }
+        const parsedUser = JSON.parse(storedUser)
+        setUser(parsedUser)
       } catch (error) {
-        console.error("Error al obtener el usuario:", error)
-      } finally {
-        setLoading(false)
+        console.error("Error parsing stored user:", error)
       }
     }
-
-    getUser()
+    setLoading(false)
   }, [])
 
-  const signOut = async () => {
-    localStorage.removeItem("inqubus_auth")
+  const signIn = async (username: string, password: string) => {
+    // Verificar credenciales
+    const matchedUser = validCredentials.find((cred) => cred.username === username && cred.password === password)
+
+    if (matchedUser) {
+      const userData = {
+        id: `user-${Date.now()}`,
+        username: matchedUser.username,
+        role: matchedUser.role as "admin" | "recruiter",
+      }
+      setUser(userData)
+      localStorage.setItem("inqubus_auth", JSON.stringify(userData))
+      return { success: true, message: "Inicio de sesión exitoso" }
+    }
+
+    return { success: false, message: "Credenciales inválidas" }
+  }
+
+  const signOut = () => {
     setUser(null)
+    localStorage.removeItem("inqubus_auth")
     router.push("/login")
   }
 
@@ -67,6 +89,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       value={{
         user,
         loading,
+        signIn,
         signOut,
         isAdmin: user?.role === "admin",
       }}
