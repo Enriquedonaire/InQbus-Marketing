@@ -240,7 +240,7 @@ export interface Database {
           due_date?: string | null
           user_id?: string | null
           created_at?: string
-          updated_at: string
+          updated_at?: string
         }
         Update: {
           id?: string
