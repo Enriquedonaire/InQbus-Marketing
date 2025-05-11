@@ -6,6 +6,7 @@ import { Check } from "lucide-react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import GradientText from "@/components/gradient-text"
 import { useTheme } from "@/components/theme-provider"
+import Link from "next/link"
 
 const pricingPlans = [
   {
@@ -127,15 +128,17 @@ export default function Pricing() {
                   </ul>
                 </CardContent>
                 <CardFooter>
-                  <Button
-                    className={`w-full ${
-                      plan.popular
-                        ? "bg-blue-600 hover:bg-blue-700 text-white"
-                        : `${isDark ? "bg-black/60 hover:bg-black/80 text-white" : "bg-white/60 hover:bg-white/80 text-blue-900"} border ${isDark ? "border-white/20" : "border-blue-900/20"}`
-                    }`}
-                  >
-                    {plan.buttonText}
-                  </Button>
+                  <Link href="/get-started" className="w-full">
+                    <Button
+                      className={`w-full ${
+                        plan.popular
+                          ? "bg-blue-600 hover:bg-blue-700 text-white"
+                          : `${isDark ? "bg-black/60 hover:bg-black/80 text-white" : "bg-white/60 hover:bg-white/80 text-blue-900"} border ${isDark ? "border-white/20" : "border-blue-900/20"}`
+                      }`}
+                    >
+                      {plan.buttonText}
+                    </Button>
+                  </Link>
                 </CardFooter>
               </Card>
             </motion.div>

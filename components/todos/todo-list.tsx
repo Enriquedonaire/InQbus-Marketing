@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { getTodos, updateTodoStatus, deleteTodo, type Todo } from "@/app/actions/todo-actions"
+import { updateTodoStatus, deleteTodo, type Todo, getTodos } from "@/app/actions/todo-actions"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -23,16 +23,37 @@ export default function TodoList() {
     const fetchTodos = async () => {
       try {
         setLoading(true)
-        const result = await getTodos()
+        const result = await fetch("/api/todos").then((res) => {
+          if (!res.ok) throw new Error("Error al obtener las tareas")
+          return res.json()
+        })
 
-        if (result.success) {
+        if (result && Array.isArray(result.data)) {
           setTodos(result.data)
         } else {
-          setError(result.error || "Error al cargar las tareas")
+          // Fallback para entorno de desarrollo
+          const fallbackResult = await getTodos()
+          if (fallbackResult.success) {
+            setTodos(fallbackResult.data)
+          } else {
+            setError(fallbackResult.error || "Error al cargar las tareas")
+          }
         }
       } catch (err) {
         console.error("Error al cargar las tareas:", err)
-        setError("Error al cargar las tareas. Por favor, inténtalo de nuevo más tarde.")
+
+        // Intentar con el método directo si la API falla
+        try {
+          const fallbackResult = await getTodos()
+          if (fallbackResult.success) {
+            setTodos(fallbackResult.data)
+          } else {
+            setError("Error al cargar las tareas. Por favor, inténtalo de nuevo más tarde.")
+          }
+        } catch (fallbackErr) {
+          console.error("Error en fallback:", fallbackErr)
+          setError("Error al cargar las tareas. Por favor, inténtalo de nuevo más tarde.")
+        }
       } finally {
         setLoading(false)
       }

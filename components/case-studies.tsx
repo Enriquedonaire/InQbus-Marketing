@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react"
 import GradientText from "@/components/gradient-text"
 import { useTheme } from "@/components/theme-provider"
 import Image from "next/image"
+import Link from "next/link"
 
 const caseStudies = [
   {
@@ -69,10 +70,10 @@ export default function CaseStudies() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          <h2 className={`text-3xl md:text-4xl font-bold ${isDark ? "text-white" : "text-blue-900"} mb-4`}>
             Nuestros <GradientText>Casos de Éxito</GradientText>
           </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">
+          <p className={`${isDark ? "text-gray-400" : "text-gray-600"} max-w-2xl mx-auto`}>
             Descubre cómo hemos ayudado a empresas como la tuya a alcanzar sus objetivos de marketing y crecimiento.
           </p>
         </motion.div>
@@ -87,7 +88,11 @@ export default function CaseStudies() {
               viewport={{ once: true }}
               className="h-full"
             >
-              <div className="bg-black/50 border border-white/10 backdrop-blur-sm h-full flex flex-col rounded-lg overflow-hidden">
+              <div
+                className={`${
+                  isDark ? "bg-black/50 border-white/10" : "bg-white/80 border-gray-200"
+                } border backdrop-blur-sm h-full flex flex-col rounded-lg overflow-hidden`}
+              >
                 <div className="relative h-48 w-full">
                   <Image
                     src={study.image || "/placeholder.svg"}
@@ -103,32 +108,30 @@ export default function CaseStudies() {
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-white mb-1">{study.title}</h3>
-                  <p className="text-gray-400 text-sm mb-4">{study.client}</p>
-                  <p className="text-gray-300 mb-6">{study.description}</p>
+                  <h3 className={`text-xl font-bold ${isDark ? "text-white" : "text-blue-900"} mb-1`}>{study.title}</h3>
+                  <p className={`${isDark ? "text-gray-400" : "text-gray-600"} text-sm mb-4`}>{study.client}</p>
+                  <p className={`${isDark ? "text-gray-300" : "text-gray-700"} mb-6`}>{study.description}</p>
                   <div className="grid grid-cols-3 gap-2 mb-6">
                     {study.metrics.map((metric, i) => (
                       <div key={i} className="text-center">
                         <p className={`text-${study.color}-500 font-bold text-xl`}>{metric.value}</p>
-                        <p className="text-gray-400 text-xs">{metric.label}</p>
+                        <p className={`${isDark ? "text-gray-400" : "text-gray-500"} text-xs`}>{metric.label}</p>
                       </div>
                     ))}
                   </div>
-                  <Button variant="ghost" className="w-full text-white hover:text-blue-400 group">
-                    Ver caso completo
-                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </Button>
+                  <Link href="/contact">
+                    <Button
+                      variant="ghost"
+                      className={`w-full ${isDark ? "text-white hover:text-blue-400" : "text-blue-600 hover:text-blue-500"} group`}
+                    >
+                      Ver caso completo
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </motion.div>
           ))}
-        </div>
-
-        <div className="text-center">
-          <Button variant="glow" size="lg" className="group">
-            Ver todos los casos de éxito
-            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Button>
         </div>
       </div>
     </section>
