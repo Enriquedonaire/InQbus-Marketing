@@ -8,6 +8,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <title>InQbus - Marketing Agency</title>
         <meta name="description" content="InQbus Marketing Agency - Elevate your brand with strategic marketing" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body>
         <ThemeProvider defaultTheme="dark" storageKey="inqubus-theme">
