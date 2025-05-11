@@ -63,7 +63,11 @@ export default function Features() {
               viewport={{ once: true }}
               className="flex gap-6"
             >
-              <div className="flex-shrink-0 p-3 bg-black/30 backdrop-blur-sm rounded-lg border border-white/10">
+              <div
+                className={`flex-shrink-0 p-3 rounded-lg border ${
+                  isDark ? "bg-black/30 backdrop-blur-sm border-white/10" : "bg-white/80 border-gray-200"
+                }`}
+              >
                 {feature.icon}
               </div>
               <div>
